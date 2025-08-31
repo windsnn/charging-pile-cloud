@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.trick.backend.mapper.ChargingOrderMapper">
+
+    <insert id="addOrder">
+        insert into charging_order(order_no, user_id, pile_id, start_time, status)
+        values (#{orderNo}, #{userId}, #{pileId}, #{startTime}, #{status})
+    </insert>
+
+    <update id="updateByOrderNo">
+        update charging_order
+        set end_time       = #{endTime},
+            duration       = #{duration},
+            power_consumed = #{powerConsumed},
+            total_fee      = #{totalFee},
+            status         = #{status}
+        where order_no = #{orderNo}
+    </update>
+
+    <select id="getOrder" resultType="com.trick.backend.model.pojo.ChargingOrder">
+        select id, order_no, user_id, status, start_time, pile_id
+        from charging_order
+        where order_no = #{orderNo}
+    </select>
+
+    <select id="getOngoing" resultType="com.trick.backend.model.vo.ChargingOrderVO">
+        select id, order_no, pile_id, start_time, status
+        from charging_order
+        where user_id = #{userId}
+          and status = 0
+    </select>
+
+    <select id="getAllOrderByUserId" resultType="com.trick.backend.model.vo.ChargingOrderVO">
+        select id,
+               order_no,
+               pile_id,
+               start_time,
+               end_time,
+               duration,
+               power_consumed,
+               total_fee,
+               payment_method,
+               status
+        from charging_order
+        where user_id = #{userId}
+        order by id desc
+    </select>
+
+</mapper>

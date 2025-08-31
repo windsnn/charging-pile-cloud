@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.trick.pile.mapper.FaultReportMapper">
+    <insert id="addFaultReport">
+        insert into fault_report(user_id, pile_id, fault_type, description, images)
+        values (#{userId}, #{pileId}, #{faultType}, #{description}, #{images})
+    </insert>
+
+    <update id="updateFaultReport">
+        update fault_report
+        <set>
+            <if test="status != null ">status = #{status},</if>
+            update_time = #{updateTime}
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="getAllFaultReport" resultType="com.trick.pile.model.vo.FaultReportVO">
+        select fr.id, fr.fault_type, fr.description, fr.images AS imagesJson,
+        fr.status, fr.create_time,fr.update_time,cp.pile_no,u.nickname,u.phone
+        from fault_report AS fr
+        join charging_pile AS cp on fr.pile_id = cp.id
+        join user AS u on fr.user_id = u.id
+        <where>
+            <if test="pileNo != null and pileNo != '' ">
+                and cp.pile_no like concat('%',#{pileNo},'%')
+            </if>
+            <if test="status != null">
+                and fr.status = #{status}
+            </if>
+        </where>
+        order by fr.id desc
+    </select>
+
+    <select id="getWxFaultReport" resultType="com.trick.pile.model.vo.FaultReportVO">
+        select fr.id,
+               fr.fault_type,
+               fr.description,
+               fr.images AS imagesJson,
+               fr.status,
+               fr.create_time,
+               fr.update_time,
+               cp.pile_no,
+               u.nickname,
+               u.phone
+        from fault_report AS fr
+                 join charging_pile AS cp on fr.pile_id = cp.id
+                 join user AS u on fr.user_id = u.id
+        where user_id = #{userId}
+        order by fr.id desc
+    </select>
+
+</mapper>

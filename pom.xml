@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- 继承 Spring Boot Parent 以获得最佳实践 -->
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.0</version>
+        <relativePath/> <!-- Don't use relativePath in the root aggregator/parent -->
+    </parent>
+
+    <groupId>com.trick</groupId>
+    <artifactId>trick-microservices-parent</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+
+    <!-- 关键点1: packaging 必须是 pom，因为它不产生jar/war，只用于管理 -->
+    <packaging>pom</packaging>
+
+    <name>trick-microservices-parent</name>
+    <description>Parent and Aggregator POM for Trick Microservices</description>
+
+    <!-- 关键点2: 使用 <modules> 标签聚合所有子模块 -->
+    <modules>
+        <module>backend</module>
+        <module>charging-user-service</module>
+        <module>common-service</module>
+        <module>charging-pile-service</module>
+        <module>charging-order-service</module>
+    </modules>
+
+    <!-- 关键点3: 使用 properties 统一管理版本号 -->
+    <properties>
+        <java.version>17</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- 自定义依赖版本 -->
+        <spring-cloud.version>2023.0.6</spring-cloud.version>
+        <spring-cloud-alibaba.version>2023.0.0.0-RC1</spring-cloud-alibaba.version>
+        <mybatis.version>3.0.5</mybatis.version>
+        <lombok.version>1.18.38</lombok.version>
+        <aliyun-oss.version>3.17.4</aliyun-oss.version>
+        <jaxb.version>2.3.1</jaxb.version>
+        <jaxb-runtime.version>2.3.3</jaxb-runtime.version>
+        <activation.version>1.1.1</activation.version>
+        <pagehelper.version>2.1.1</pagehelper.version>
+        <jjwt.version>0.9.1</jjwt.version>
+        <redisson.version>3.30.0</redisson.version>
+    </properties>
+
+    <!-- 关键点4: 使用 dependencyManagement 管理所有子模块的依赖版本 -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- 在这里放入所有微服务可能共用的依赖版本声明 -->
+            <!-- 新增: 引入 Spring Cloud BOM -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- 新增: 引入 Spring Cloud Alibaba BOM (如果需要使用Nacos) -->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mybatis.spring.boot</groupId>
+                <artifactId>mybatis-spring-boot-starter</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.pagehelper</groupId>
+                <artifactId>pagehelper-spring-boot-starter</artifactId>
+                <version>${pagehelper.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.jsonwebtoken</groupId>
+                <artifactId>jjwt</artifactId>
+                <version>${jjwt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson-spring-boot-starter</artifactId>
+                <version>${redisson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.aliyun.oss</groupId>
+                <artifactId>aliyun-sdk-oss</artifactId>
+                <version>${aliyun-oss.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.xml.bind</groupId>
+                <artifactId>jaxb-api</artifactId>
+                <version>${jaxb.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>javax.activation</groupId>
+                <artifactId>activation</artifactId>
+                <version>${activation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.glassfish.jaxb</groupId>
+                <artifactId>jaxb-runtime</artifactId>
+                <version>${jaxb-runtime.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.projectlombok</groupId>
+                                <artifactId>lombok</artifactId>
+                                <version>${lombok.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <!-- 将 spring-boot-maven-plugin 的管理也放在父POM中 -->
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-maven-plugin</artifactId>
+                    <!-- 版本已经由 spring-boot-starter-parent 管理 -->
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

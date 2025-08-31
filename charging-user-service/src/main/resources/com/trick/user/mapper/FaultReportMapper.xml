@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.trick.user.mapper.FaultReportMapper">
+    <insert id="addFaultReport">
+        insert into fault_report(user_id, pile_id, fault_type, description, images)
+        values (#{userId}, #{pileId}, #{faultType}, #{description}, #{images})
+    </insert>
+
+    <select id="getWxFaultReport" resultType="com.trick.user.model.vo.FaultReportVO">
+        select fr.id,
+               fr.fault_type,
+               fr.description,
+               fr.images AS imagesJson,
+               fr.status,
+               fr.create_time,
+               fr.update_time,
+               cp.pile_no,
+               u.nickname,
+               u.phone
+        from fault_report AS fr
+                 join charging_pile AS cp on fr.pile_id = cp.id
+                 join user AS u on fr.user_id = u.id
+        where user_id = #{userId}
+        order by fr.id desc
+    </select>
+
+</mapper>
