@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.trick.wallet.mapper.TransactionLogMapper">
+
+    <insert id="addLogT">
+        insert into transaction_log(transaction_no, user_id, order_id, amount, type,
+                                    status, description)
+        values (#{transactionNo}, #{walletId}, #{orderId}, #{amount}, #{type},
+                #{status}, #{description})
+    </insert>
+
+    <select id="getAllTransactions" resultType="com.trick.wallet.model.pojo.TransactionLog">
+        select id, transaction_no, amount, type, status, create_time, description
+        from transaction_log
+        where user_id = #{id}
+        order by id desc
+    </select>
+
+</mapper>

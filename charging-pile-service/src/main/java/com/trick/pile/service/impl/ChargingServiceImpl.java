@@ -1,8 +1,9 @@
 package com.trick.pile.service.impl;
 
 import com.trick.common.exception.BusinessException;
-import com.trick.common.utils.ThreadLocalUtil;
+import com.trick.common.result.Result;
 import com.trick.pile.WebSocketSimulate.ChargingSimulationService;
+import com.trick.pile.client.OrderClient;
 import com.trick.pile.client.UserClient;
 import com.trick.pile.mapper.ChargingPileMapper;
 import com.trick.pile.model.dto.ChargingDTO;
@@ -39,9 +40,7 @@ public class ChargingServiceImpl implements ChargingService {
     @Autowired
     private ChargingPileMapper pileMapper;
     @Autowired
-    private ChargingOrderMapper orderMapper;
-    @Autowired
-    private TransactionLogMapper logMapper;
+    private OrderClient orderClient;
     @Autowired
     private RedissonClient redissonClient;
 
@@ -69,11 +68,6 @@ public class ChargingServiceImpl implements ChargingService {
                     throw new BusinessException("充电桩不存在或正忙！");
                 }
 
-                //todo
-                Map<String, Object> map = new HashMap<>();
-                map.put("userId","20");
-                ThreadLocalUtil.setContext(map);
-                //todo
                 BigDecimal balance = userClient.getWallet().getData().get("balance");
                 if (balance.compareTo(new BigDecimal("10.00")) < 0) {
                     throw new BusinessException("余额不足10元，请充值后再开始充电！");
@@ -89,11 +83,14 @@ public class ChargingServiceImpl implements ChargingService {
                 ChargingOrderAddDTO orderAddDTO = new ChargingOrderAddDTO();
                 String orderNo = UUID.randomUUID().toString().replace("-", "");
                 orderAddDTO.setOrderNo(orderNo);
-                orderAddDTO.setUserId(userId);
                 orderAddDTO.setPileId(pileId); //该id为充电桩id
                 orderAddDTO.setStartTime(LocalDateTime.now());
                 orderAddDTO.setStatus(0); // 0-进行中
-                orderMapper.addOrder(orderAddDTO);
+
+                Result<?> result = orderClient.addOrder(orderAddDTO);
+                if (result.getCode() != 200) {
+                    throw new BusinessException("订单创建失败");
+                }
 
                 // 异步启动充电模拟
                 simulationService.startSimulationCharging(orderNo, userId, balance, pile.getPowerRate(), pile.getPricePerKwh());
@@ -112,7 +109,7 @@ public class ChargingServiceImpl implements ChargingService {
     //核心逻辑（用户主动结束充电）
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public String stopChargingByUser(Integer userId, ChargingDTO chargingDTO) {
+    public Map<String, String> stopChargingByUser(Integer userId, ChargingDTO chargingDTO) {
         //获取订单号
         String orderNo = chargingDTO.getOrderNo();
 
@@ -120,7 +117,10 @@ public class ChargingServiceImpl implements ChargingService {
         simulationService.stopCharging(orderNo);
 
         // 调用统一的结算逻辑
-        return finalizeCharging(userId, orderNo);
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("orderNo", orderNo);
+
+        return orderClient.finalizeCharging(hashMap).getData();
     }
 
     //核心逻辑（余额不足停止充电）
@@ -129,64 +129,9 @@ public class ChargingServiceImpl implements ChargingService {
     public void stopChargingDueToInsufficientBalance(Integer userId, String orderNo) {
         simulationService.stopCharging(orderNo);
 
-        finalizeCharging(userId, orderNo);
-    }
-
-    //核心逻辑（订单结算服务）
-    @Override
-    public String finalizeCharging(Integer userId, String orderNo) {
-        ChargingOrder order = orderMapper.getOrder(orderNo);
-        if (order == null || !order.getUserId().equals(userId)) {
-            throw new BusinessException("订单不存在或不属于该用户");
-        }
-
-        // 如果订单已完成，直接返回，防止重复处理
-        if (order.getStatus() != 0) {
-            throw new BusinessException("该订单已完成");
-        }
-
-        long duration = java.time.Duration.between(order.getStartTime(), LocalDateTime.now()).getSeconds();
-        ChargingPile pile = pileMapper.getChargingPileById(order.getPileId());
-
-        // 精确计算最终费用
-        BigDecimal powerConsumed = pile.getPowerRate().multiply(new BigDecimal(duration))
-                .divide(new BigDecimal("3600"), 3, java.math.RoundingMode.HALF_UP);
-        BigDecimal totalFee = powerConsumed.multiply(pile.getPricePerKwh()).setScale(2, java.math.RoundingMode.HALF_UP);
-
-        // 最终费用不能超过用户余额，以用户余额为准，防止扣成负数
-        //todo BigDecimal actualDeduction = totalFee.min(userMapper.getWallet(userId));
-
-        // 更新订单
-        order.setEndTime(LocalDateTime.now());
-        order.setDuration((int) duration);
-        order.setPowerConsumed(powerConsumed);
-        order.setTotalFee(actualDeduction); // 记录实际扣款金额
-        order.setStatus(1); // 1-已完成
-        //todo  orderMapper.updateByOrderNo(order);
-
-        // 从用户余额扣款
-        if (actualDeduction.compareTo(BigDecimal.ZERO) > 0) {
-            //todo userMapper.decreaseBalance(userId, actualDeduction);
-
-            // 插入交易流水
-            TransactionLog log = new TransactionLog();
-            String transactionNo = "TX" + System.currentTimeMillis() + (int) (Math.random() * 1000);
-            log.setTransactionNo(transactionNo);
-            log.setUserId(userId);
-            log.setOrderId(order.getId());
-            log.setAmount(actualDeduction);
-            log.setType(2); // 2-充电支付
-            log.setStatus(1);
-            log.setDescription("充电消费，订单号：" + orderNo);
-            //todo 添加用户消费订单 logMapper.addLogT(log);
-        }
-
-        // 恢复充电桩状态
-        ChargingPileAddAndUpdateDTO dto = new ChargingPileAddAndUpdateDTO();
-        dto.setStatus(0);
-        dto.setId(order.getPileId());
-        pileMapper.updateChargingPile(dto);
-
-        return orderNo;
+        // 调用统一的结算逻辑
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("orderNo", orderNo);
+        orderClient.finalizeCharging(hashMap);
     }
 }

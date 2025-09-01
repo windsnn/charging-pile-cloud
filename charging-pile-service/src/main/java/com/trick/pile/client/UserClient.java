@@ -1,7 +1,7 @@
 package com.trick.pile.client;
 
+import com.trick.common.config.FeignConfig;
 import com.trick.common.result.Result;
-import com.trick.pile.config.FeignConfig;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 

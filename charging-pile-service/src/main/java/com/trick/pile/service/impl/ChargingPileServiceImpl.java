@@ -94,13 +94,15 @@ public class ChargingPileServiceImpl implements ChargingPileService {
 
         chargingPileMapper.updateChargingPile(chargingUpdatePileDTO);
 
-        // 同步地理位置到Redis GEO
-        redisTemplate.opsForGeo().remove(PILE_GEO_KEY, chargingUpdatePileDTO.getId().toString());
-        redisTemplate.opsForGeo().add(
-                PILE_GEO_KEY,
-                new Point(chargingUpdatePileDTO.getLongitude(), chargingUpdatePileDTO.getLatitude()),
-                chargingUpdatePileDTO.getId().toString()
-        );
+        if (chargingUpdatePileDTO.getLongitude() != null && chargingUpdatePileDTO.getLatitude() != null) {
+            // 同步地理位置到Redis GEO
+            redisTemplate.opsForGeo().remove(PILE_GEO_KEY, chargingUpdatePileDTO.getId().toString());
+            redisTemplate.opsForGeo().add(
+                    PILE_GEO_KEY,
+                    new Point(chargingUpdatePileDTO.getLongitude(), chargingUpdatePileDTO.getLatitude()),
+                    chargingUpdatePileDTO.getId().toString()
+            );
+        }
     }
 
     //删除充电桩

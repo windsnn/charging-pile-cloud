@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.trick.backend.mapper.ChargingOrderMapper">
+<mapper namespace="com.trick.order.mapper.ChargingOrderMapper">
 
     <insert id="addOrder">
         insert into charging_order(order_no, user_id, pile_id, start_time, status)
@@ -20,20 +20,20 @@
         where order_no = #{orderNo}
     </update>
 
-    <select id="getOrder" resultType="com.trick.backend.model.pojo.ChargingOrder">
+    <select id="getOrder" resultType="com.trick.order.model.pojo.ChargingOrder">
         select id, order_no, user_id, status, start_time, pile_id
         from charging_order
         where order_no = #{orderNo}
     </select>
 
-    <select id="getOngoing" resultType="com.trick.backend.model.vo.ChargingOrderVO">
+    <select id="getOngoing" resultType="com.trick.order.model.vo.ChargingOrderVO">
         select id, order_no, pile_id, start_time, status
         from charging_order
         where user_id = #{userId}
           and status = 0
     </select>
 
-    <select id="getAllOrderByUserId" resultType="com.trick.backend.model.vo.ChargingOrderVO">
+    <select id="getAllOrderByUserId" resultType="com.trick.order.model.vo.ChargingOrderVO">
         select id,
                order_no,
                pile_id,

@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.trick.common.result.PageResult;
 import com.trick.order.mapper.ChargingOrderMapper;
+import com.trick.order.model.dto.ChargingOrderAddDTO;
 import com.trick.order.model.vo.ChargingOrderVO;
 import com.trick.order.service.ChargingOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,5 +33,10 @@ public class ChargingOrderServiceImpl implements ChargingOrderService {
         long total = pageInfo.getTotal();
 
         return new PageResult<>(total, records);
+    }
+
+    @Override
+    public void addOrder(ChargingOrderAddDTO chargingOrderAddDTO) {
+        orderMapper.addOrder(chargingOrderAddDTO);
     }
 }

@@ -30,6 +30,6 @@ public interface UserMapper {
     //获取个人钱包余额
     BigDecimal getWallet(Integer id);
 
-    //增加个人钱包余额
+    //更新个人钱包余额
     void addBalance(Integer id, BigDecimal amount);
 }

@@ -34,11 +34,6 @@ public class ChargingController {
         // token获取UserId
         Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
 
-        String orderId = chargingService.stopChargingByUser(userId, chargingDTO);
-
-        Map<String, String> map = new HashMap<>();
-        map.put("orderId", orderId);
-
-        return Result.success(map);
+        return Result.success(chargingService.stopChargingByUser(userId, chargingDTO));
     }
 }

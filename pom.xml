@@ -29,6 +29,7 @@
         <module>common-service</module>
         <module>charging-pile-service</module>
         <module>charging-order-service</module>
+        <module>user-wallet-service</module>
     </modules>
 
     <!-- 关键点3: 使用 properties 统一管理版本号 -->

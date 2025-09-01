@@ -1,4 +1,4 @@
-package com.trick.order;
+package com.trick.wallet;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -10,10 +10,10 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @ComponentScan(basePackages = "com.trick.common")
 @EnableAsync
 @EnableFeignClients
-public class OrderServiceApplication {
+public class WalletServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(OrderServiceApplication.class, args);
+        SpringApplication.run(WalletServiceApplication.class, args);
     }
 
 }

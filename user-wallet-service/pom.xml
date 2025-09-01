@@ -7,11 +7,9 @@
         <groupId>com.trick</groupId>
         <artifactId>trick-microservices-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
-
-        <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>charging-user-service</artifactId>
+    <artifactId>user-wallet-service</artifactId>
 
     <properties>
         <maven.compiler.source>23</maven.compiler.source>
@@ -29,14 +27,13 @@
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
-
         <dependency>
-            <groupId>com.aliyun.oss</groupId>
-            <artifactId>aliyun-sdk-oss</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>

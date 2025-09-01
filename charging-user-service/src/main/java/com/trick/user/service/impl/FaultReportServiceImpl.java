@@ -5,18 +5,20 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-
 import com.trick.common.exception.BusinessException;
 import com.trick.common.result.PageResult;
 import com.trick.user.client.PileClient;
 import com.trick.user.mapper.FaultReportMapper;
 import com.trick.user.model.dto.FaultReportAddDTO;
+import com.trick.user.model.dto.FaultReportQueryDTO;
+import com.trick.user.model.dto.FaultReportUpdateDTO;
 import com.trick.user.model.pojo.FaultReport;
 import com.trick.user.model.vo.FaultReportVO;
 import com.trick.user.service.FaultReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -24,14 +26,31 @@ public class FaultReportServiceImpl implements FaultReportService {
     @Autowired
     private FaultReportMapper faultReportMapper;
     @Autowired
-    private PileClient client;
+    private PileClient pileClient;
     @Autowired
     private ObjectMapper objectMapper;
+
+    //分页条件查询
+    @Override
+    public PageResult<FaultReportVO> getFaultReportsByPage(FaultReportQueryDTO queryDTO) {
+        PageHelper.startPage(queryDTO.getPageNum(), queryDTO.getPageSize());
+        List<FaultReportVO> list = faultReportMapper.getAllFaultReport(queryDTO);
+        return jsonConversionAndPaged(list);
+    }
+
+    //根据ID更新处理状态（暂定）
+    @Override
+    public void updateFaultReport(Integer id, FaultReportUpdateDTO updateDTO) {
+        updateDTO.setId(id);
+        updateDTO.setUpdateTime(LocalDateTime.now());
+
+        faultReportMapper.updateFaultReport(updateDTO);
+    }
 
     //用户提交报修报告
     @Override
     public void addFaultReport(FaultReportAddDTO dto) {
-        if (client.getChargingPileById(dto.getPileId()) == null) {
+        if (pileClient.getChargingPileById(dto.getPileId()).getData() == null) {
             throw new BusinessException("不存在的充电桩");
         }
 
