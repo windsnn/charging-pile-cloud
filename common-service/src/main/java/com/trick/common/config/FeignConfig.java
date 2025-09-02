@@ -1,5 +1,6 @@
 package com.trick.common.config;
 
+import feign.Logger;
 import feign.RequestInterceptor;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.context.annotation.Bean;
@@ -9,7 +10,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Configuration
 public class FeignConfig {
-
     @Bean
     public RequestInterceptor requestInterceptor() {
         return requestTemplate -> {
@@ -22,8 +22,12 @@ public class FeignConfig {
                     requestTemplate.header("token", token);
                 }
             }
-
         };
+    }
+
+    @Bean
+    public Logger.Level feignLoggerLevel() {
+        return Logger.Level.NONE;
     }
 
 }

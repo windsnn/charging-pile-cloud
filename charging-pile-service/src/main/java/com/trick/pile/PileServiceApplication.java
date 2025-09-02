@@ -7,7 +7,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.trick.common")
+@ComponentScan(basePackages = "com.trick")
 @EnableAsync
 @EnableFeignClients
 public class PileServiceApplication {

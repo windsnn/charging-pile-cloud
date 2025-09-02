@@ -14,6 +14,7 @@ public class PileStateController {
     @Autowired
     private ChargingPileService chargingPileService;
 
+    //内部设置空闲接口
     @PutMapping("/state")
     public Result<?> SetState(Integer id, Integer state) {
         ChargingPileAddAndUpdateDTO dto = new ChargingPileAddAndUpdateDTO();

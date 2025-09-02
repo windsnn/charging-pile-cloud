@@ -9,11 +9,15 @@ import com.trick.order.service.ChargingOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/wx/orders")
 public class ChargingOrderController {
     @Autowired
     private ChargingOrderService orderService;
+    @Autowired
+    private ChargingOrderService chargingOrderService;
 
     //分页获取我的订单(倒序排序）
     @GetMapping()
@@ -33,5 +37,13 @@ public class ChargingOrderController {
         chargingOrderAddDTO.setUserId(userId);
         orderService.addOrder(chargingOrderAddDTO);
         return Result.success();
+    }
+
+    @GetMapping("/ongoing")
+    public Result<List<ChargingOrderVO>> ongoingCharging() {
+        // token获取UserId
+        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+
+        return Result.success(chargingOrderService.getOngoing(userId));
     }
 }

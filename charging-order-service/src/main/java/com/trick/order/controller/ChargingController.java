@@ -16,18 +16,9 @@ import java.util.Map;
 @RequestMapping("/wx/charging")
 public class ChargingController {
     @Autowired
-    private ChargingOrderService chargingOrderService;
-    @Autowired
     private ChargingService chargingService;
 
-    @GetMapping("/ongoing")
-    public Result<List<ChargingOrderVO>> ongoingCharging() {
-        // token获取UserId
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
-
-        return Result.success(chargingOrderService.getOngoing(userId));
-    }
-
+    //内部结束订单接口
     @PutMapping("/finalizeCharging")
     public Result<Map<String, String>> finalizeCharging(@RequestBody Map<String, String> map) {
         Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
