@@ -8,7 +8,7 @@
     <insert id="addLogT">
         insert into transaction_log(transaction_no, user_id, order_id, amount, type,
                                     status, description)
-        values (#{transactionNo}, #{walletId}, #{orderId}, #{amount}, #{type},
+        values (#{transactionNo}, #{userId}, #{orderId}, #{amount}, #{type},
                 #{status}, #{description})
     </insert>
 

@@ -18,8 +18,8 @@ public class FaultReportController {
     @PostMapping("/report")
     //用户提交故障报告
     public Result<?> report(@RequestBody FaultReportAddDTO dto) {
-        // token获取UserId
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        // 线程获取UserId
+        Integer userId = ThreadLocalUtil.getUserId();
         dto.setUserId(userId);
 
         faultReportService.addFaultReport(dto);
@@ -32,8 +32,8 @@ public class FaultReportController {
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize
     ) {
-        // token获取UserId
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        // 线程获取UserId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         return Result.success(faultReportService.getWxFaultReports(userId, pageNum, pageSize));
     }

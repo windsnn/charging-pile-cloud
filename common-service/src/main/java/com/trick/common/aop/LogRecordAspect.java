@@ -27,7 +27,6 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.lang.reflect.Method;
 import java.time.LocalDateTime;
-import java.util.Map;
 
 @Aspect
 @Component
@@ -98,11 +97,8 @@ public class LogRecordAspect {
         }
 
         // 4. 设置操作人信息 (从ThreadLocal中获取)
-        Map<String, Object> userInfo = ThreadLocalUtil.getContext();
-        if (userInfo != null) {
-            opLog.setOperatorId(((Integer) userInfo.get("id")));
-            opLog.setOperatorName((String) userInfo.get("username"));
-        }
+        opLog.setOperatorId(ThreadLocalUtil.getAdminId());
+        opLog.setOperatorName(ThreadLocalUtil.getAdminUsername());
 
         // 5. 设置请求参数
         try {

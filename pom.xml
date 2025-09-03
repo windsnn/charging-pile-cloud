@@ -31,6 +31,7 @@
         <module>charging-order-service</module>
         <module>user-wallet-service</module>
         <module>charging-gateway-service</module>
+        <module>admin-service</module>
     </modules>
 
     <!-- 关键点3: 使用 properties 统一管理版本号 -->

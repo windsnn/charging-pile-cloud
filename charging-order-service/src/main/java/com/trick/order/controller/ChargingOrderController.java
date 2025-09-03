@@ -24,8 +24,8 @@ public class ChargingOrderController {
     public Result<PageResult<ChargingOrderVO>> getUserProfileOrders(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        //获取token id
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        //获取 userId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         return Result.success(orderService.getPagedOrder(userId, pageNum, pageSize));
     }
@@ -33,7 +33,7 @@ public class ChargingOrderController {
     //添加订单
     @PostMapping()
     public Result<?> addOrder(@RequestBody ChargingOrderAddDTO chargingOrderAddDTO) {
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        Integer userId = ThreadLocalUtil.getUserId();
         chargingOrderAddDTO.setUserId(userId);
         orderService.addOrder(chargingOrderAddDTO);
         return Result.success();
@@ -41,8 +41,8 @@ public class ChargingOrderController {
 
     @GetMapping("/ongoing")
     public Result<List<ChargingOrderVO>> ongoingCharging() {
-        // token获取UserId
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        // 获取UserId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         return Result.success(chargingOrderService.getOngoing(userId));
     }

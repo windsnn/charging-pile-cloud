@@ -3,6 +3,7 @@ package com.trick.wallet.mapper;
 
 import com.trick.wallet.model.pojo.TransactionLog;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 

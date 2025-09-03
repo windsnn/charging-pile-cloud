@@ -36,8 +36,8 @@ public class ChargingPileController {
     //开始充电
     @PostMapping("/start")
     public Result<Map<String, String>> startCharging(@RequestBody ChargingDTO chargingDTO) {
-        // token获取UserId
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        // 获取UserId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         String orderId = chargingService.startCharging(userId, chargingDTO);
 
@@ -51,7 +51,7 @@ public class ChargingPileController {
     @PostMapping("/stop")
     public Result<Map<String, String>> stopCharging(@RequestBody ChargingDTO chargingDTO) {
         // token获取UserId
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        Integer userId = ThreadLocalUtil.getUserId();
 
         return Result.success(chargingService.stopChargingByUser(userId, chargingDTO));
     }

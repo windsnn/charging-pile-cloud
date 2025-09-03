@@ -28,8 +28,8 @@ public class FilesUploadController {
             @RequestParam MultipartFile file,
             @RequestParam String type) {
 
-        // token获取userId
-        int userId = (int) ThreadLocalUtil.getContext().get("id");
+        // 线程获取userId
+        int userId = ThreadLocalUtil.getUserId();
 
         if (file.isEmpty()) {
             throw new BusinessException("上传文件不能为空");

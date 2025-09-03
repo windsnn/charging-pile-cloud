@@ -1,4 +1,4 @@
-package com.trick.common.utils;
+package com.trick.gateway.utils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -21,5 +21,13 @@ public class JwtUtil {
                 .addClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
                 .compact();
+    }
+
+    //解析token
+    public Map<String, Object> parseToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(secret)
+                .parseClaimsJws(token)
+                .getBody();
     }
 }

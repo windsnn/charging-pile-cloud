@@ -17,8 +17,8 @@ public class UserController {
     @GetMapping
     // 获取user信息
     public Result<WxUserProfileVO> getUserProfile() {
-        //获取token id
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        //获取线程userId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         return Result.success(userService.getUserProfileById(userId));
     }
@@ -26,8 +26,8 @@ public class UserController {
     //更新user信息
     @PutMapping
     public Result<?> updateUserProfile(@RequestBody UserAddAndUpdateDTO userAddAndUpdateDTO) {
-        //获取token id
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        //获取线程userId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         userAddAndUpdateDTO.setId(userId);
         userService.updateUser(userAddAndUpdateDTO);

@@ -25,8 +25,8 @@ public class WalletController {
     @GetMapping
     //获取钱包余额
     public Result<Map<String, BigDecimal>> getWallet() {
-        // token获取id
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        // 获取userId
+        Integer userId = ThreadLocalUtil.getUserId();
         BigDecimal balance = walletService.getWallet(userId);
 
         Map<String, BigDecimal> map = new HashMap<>();
@@ -38,8 +38,8 @@ public class WalletController {
     //钱包充值
     @PostMapping("/recharge")
     public Result<?> recharge(@RequestBody AmountDTO amountDTO) {
-        // token获取id
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        // 获取userId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         walletService.recharge(userId, amountDTO.getAmount());
         return Result.success();
@@ -48,7 +48,7 @@ public class WalletController {
     //钱包扣款
     @PostMapping("/deduction")
     public Result<?> deductAmount(@RequestBody AmountDTO amountDTO) {
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        Integer userId = ThreadLocalUtil.getUserId();
 
         walletService.deductAmount(userId, amountDTO.getAmount());
         return Result.success();
@@ -59,8 +59,8 @@ public class WalletController {
     public Result<PageResult<TransactionLog>> getPagedTransactions(
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
-        // token获取id
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        // 获取userId
+        Integer userId = ThreadLocalUtil.getUserId();
 
         return Result.success(transactionLogService.getPagedTransactions(userId, pageNum, pageSize));
     }
@@ -68,7 +68,7 @@ public class WalletController {
     //添加交易流水表
     @PostMapping("/transactions")
     public Result<?> addTransaction(@RequestBody TransactionLog transactionLog) {
-        Integer userId = (Integer) ThreadLocalUtil.getContext().get("id");
+        Integer userId = ThreadLocalUtil.getUserId();
         transactionLog.setUserId(userId);
 
         transactionLogService.addLogTransactions(userId, transactionLog);

@@ -6,9 +6,9 @@
 <mapper namespace="com.trick.pile.mapper.ChargingPileMapper">
     <insert id="addChargingPile" useGeneratedKeys="true" keyProperty="id">
         insert into charging_pile(pile_no, type, status, power_rate, price_per_kwh,
-                                  location_desc, latitude, longitude, create_time, update_time)
+                                  location_desc, latitude, longitude)
         values (#{pileNo}, #{type}, #{status}, #{powerRate}, #{pricePerKwh},
-                #{locationDesc}, #{latitude}, #{longitude}, #{createTime}, #{updateTime})
+                #{locationDesc}, #{latitude}, #{longitude})
     </insert>
 
     <update id="updateChargingPile">

@@ -74,24 +74,24 @@ public class LoginServiceImpl implements LoginService {
         }
 
         // 2. 创建或更新用户，并生成 token
-        Integer id = userService.getUserByOpenid(openid);
+        Integer userId = userService.getUserByOpenid(openid);
         LocalDateTime now = LocalDateTime.now();
 
-        if (id == null) {
+        if (userId == null) {
             UserAddAndUpdateDTO dto = new UserAddAndUpdateDTO();
             dto.setOpenid(openid);
             dto.setCreateTime(now);
             dto.setUpdateTime(now);
-            id = userService.addUser(dto);
+            userId = userService.addUser(dto);
             log.info("新用户注册成功: openid={}", openid);
         }
 
-        String redisKey = WX_SESSION_KEY_PREFIX + id;
+        String redisKey = WX_SESSION_KEY_PREFIX + userId;
         stringRedisTemplate.opsForValue().set(redisKey, sessionKey, 7, TimeUnit.DAYS); // 存7天
-        log.info("【Redis】已缓存 userId: {} 的 session_key", id);
+        log.info("【Redis】已缓存 userId: {} 的 session_key", userId);
 
         Map<String, Object> claims = new HashMap<>();
-        claims.put("id", id);
+        claims.put("userId", userId);
         claims.put("openid", openid);
         claims.put("role", "user");
 
