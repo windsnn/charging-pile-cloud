@@ -66,6 +66,7 @@ public class ChargingSimulationService {
 
                     // 触发自动停止流程
                     endMessage.put("status", "STOPPED");
+
                     chargingService.stopChargingDueToInsufficientBalance(userId, orderNo);
                     break; // 跳出循环
                 }

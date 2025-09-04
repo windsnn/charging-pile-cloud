@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Service
 public class ChargingServiceImpl implements ChargingService {
@@ -59,10 +60,11 @@ public class ChargingServiceImpl implements ChargingService {
         BigDecimal totalFee = powerConsumed.multiply(pile.getPricePerKwh()).setScale(2, RoundingMode.HALF_UP);
 
         // 最终费用不能超过用户余额，以用户余额为准，防止扣成负数
-        if (walletClient.getWallet().getCode() != 200) {
-            throw new RuntimeException();
+        Result<Map<String, BigDecimal>> wallet = walletClient.getWallet();
+        if (wallet.getCode() != 200) {
+            throw new RuntimeException(wallet.getMsg());
         }
-        BigDecimal actualDeduction = totalFee.min(walletClient.getWallet().getData().get("balance"));
+        BigDecimal actualDeduction = totalFee.min(wallet.getData().get("balance"));
 
         // 更新订单
         order.setEndTime(LocalDateTime.now());
@@ -76,7 +78,10 @@ public class ChargingServiceImpl implements ChargingService {
         if (actualDeduction.compareTo(BigDecimal.ZERO) > 0) {
             //取费用的相反数
             BigDecimal negativeAmount = actualDeduction.negate();
-            walletClient.deductAmount(new AmountDTO(negativeAmount));
+            Result<?> result1 = walletClient.deductAmount(new AmountDTO(negativeAmount));
+            if (result1.getCode() != 200) {
+                throw new BusinessException(result1.getMsg());
+            }
 
             // 插入交易流水
             TransactionLog log = new TransactionLog();
@@ -88,7 +93,10 @@ public class ChargingServiceImpl implements ChargingService {
             log.setType(2); // 2-充电支付
             log.setStatus(1);
             log.setDescription("充电消费，订单号：" + orderNo);
-            walletClient.addLogT(log);
+            Result<?> result2 = walletClient.addLogT(log);
+            if (result2.getCode() != 200) {
+                throw new BusinessException(result2.getMsg());
+            }
         }
 
         // 恢复充电桩状态

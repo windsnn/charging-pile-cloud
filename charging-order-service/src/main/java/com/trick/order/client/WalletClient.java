@@ -18,9 +18,9 @@ public interface WalletClient {
     @GetMapping("/wx/wallet")
     Result<Map<String, BigDecimal>> getWallet();
 
-    @PutMapping("wx/wallet/deduction")
-    void deductAmount(AmountDTO amountDTO);
+    @PostMapping("wx/wallet/deduction")
+    Result<?> deductAmount(AmountDTO amountDTO);
 
     @PostMapping("wx/wallet/transactions")
-    void addLogT(TransactionLog log);
+    Result<?> addLogT(TransactionLog log);
 }

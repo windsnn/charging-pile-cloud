@@ -7,12 +7,14 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.trick.common.exception.BusinessException;
 import com.trick.common.result.PageResult;
+import com.trick.common.result.Result;
 import com.trick.user.client.PileClient;
 import com.trick.user.mapper.FaultReportMapper;
 import com.trick.user.model.dto.FaultReportAddDTO;
 import com.trick.user.model.dto.FaultReportQueryDTO;
 import com.trick.user.model.dto.FaultReportUpdateDTO;
 import com.trick.user.model.pojo.FaultReport;
+import com.trick.user.model.vo.ChargingPileVO;
 import com.trick.user.model.vo.FaultReportVO;
 import com.trick.user.service.FaultReportService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +52,12 @@ public class FaultReportServiceImpl implements FaultReportService {
     //用户提交报修报告
     @Override
     public void addFaultReport(FaultReportAddDTO dto) {
-        if (pileClient.getChargingPileById(dto.getPileId()).getData() == null) {
+        Result<ChargingPileVO> result = pileClient.getChargingPileById(dto.getPileId());
+
+        if (result.getCode() != 200) {
+            throw new BusinessException(result.getMsg());
+        }
+        if (result.getData() == null) {
             throw new BusinessException("不存在的充电桩");
         }
 

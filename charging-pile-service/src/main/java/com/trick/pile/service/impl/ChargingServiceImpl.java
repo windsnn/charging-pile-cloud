@@ -2,7 +2,9 @@ package com.trick.pile.service.impl;
 
 import com.trick.common.exception.BusinessException;
 import com.trick.common.result.Result;
+import com.trick.common.utils.ThreadLocalUtil;
 import com.trick.pile.WebSocketSimulate.ChargingSimulationService;
+import com.trick.pile.client.AsyncOrderClient;
 import com.trick.pile.client.OrderClient;
 import com.trick.pile.client.UserClient;
 import com.trick.pile.mapper.ChargingPileMapper;
@@ -43,6 +45,8 @@ public class ChargingServiceImpl implements ChargingService {
     private OrderClient orderClient;
     @Autowired
     private RedissonClient redissonClient;
+    @Autowired
+    private AsyncOrderClient asyncOrderClient;
 
     // 核心业务（充电逻辑）
     @Override
@@ -65,10 +69,15 @@ public class ChargingServiceImpl implements ChargingService {
                 ChargingPileVO pile = chargingPileService.getChargingPileById(pileId);
 
                 if (pile == null || pile.getStatus() != 0) {
-                    throw new BusinessException("充电桩不存在或正忙！");
+                    throw new BusinessException(400, "充电桩不存在或正忙！");
                 }
 
-                BigDecimal balance = userClient.getWallet().getData().get("balance");
+                Result<Map<String, BigDecimal>> result1 = userClient.getWallet();
+                if (result1.getCode() != 200) {
+                    throw new BusinessException(result1.getMsg());
+                }
+
+                BigDecimal balance = result1.getData().get("balance");
                 if (balance.compareTo(new BigDecimal("10.00")) < 0) {
                     throw new BusinessException("余额不足10元，请充值后再开始充电！");
                 }
@@ -89,14 +98,12 @@ public class ChargingServiceImpl implements ChargingService {
 
                 Result<?> result = orderClient.addOrder(orderAddDTO);
                 if (result.getCode() != 200) {
-                    throw new BusinessException("订单创建失败");
+                    throw new BusinessException(result.getMsg());
                 }
 
                 // 异步启动充电模拟
                 simulationService.startSimulationCharging(orderNo, userId, balance, pile.getPowerRate(), pile.getPricePerKwh());
                 return orderNo;
-            } catch (BusinessException e) {
-                throw new RuntimeException(e);
             } finally {
                 lock.unlock(); // 释放锁
             }
@@ -120,7 +127,12 @@ public class ChargingServiceImpl implements ChargingService {
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("orderNo", orderNo);
 
-        return orderClient.finalizeCharging(hashMap).getData();
+        Result<Map<String, String>> result = orderClient.finalizeCharging(hashMap);
+        if (result.getCode() != 200) {
+            throw new BusinessException(result.getMsg());
+        }
+
+        return result.getData();
     }
 
     //核心逻辑（余额不足停止充电）
@@ -129,9 +141,17 @@ public class ChargingServiceImpl implements ChargingService {
     public void stopChargingDueToInsufficientBalance(Integer userId, String orderNo) {
         simulationService.stopCharging(orderNo);
 
-        // 调用统一的结算逻辑
+        //设置当前线程ThreadLocal（过验证逻辑）
+        Map<String, Object> local = new HashMap<>();
+        local.put("X-User-Id", userId);
+        ThreadLocalUtil.setContext(local);
+
+        // 自动调用统一的结算逻辑
         HashMap<String, String> hashMap = new HashMap<>();
         hashMap.put("orderNo", orderNo);
-        orderClient.finalizeCharging(hashMap);
+        Result<Map<String, String>> result = asyncOrderClient.asyncFinalizeCharging(hashMap);
+        if (result.getCode() != 200) {
+            throw new BusinessException(result.getMsg());
+        }
     }
 }

@@ -1,11 +1,11 @@
 package com.trick.admin.service.impl;
 
+import com.trick.admin.config.JwtUtil;
 import com.trick.admin.mapper.LoginMapper;
 import com.trick.admin.model.dto.AdminDTO;
 import com.trick.admin.model.pojo.Admin;
 import com.trick.admin.service.LoginService;
 import com.trick.common.exception.BusinessException;
-import com.trick.common.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

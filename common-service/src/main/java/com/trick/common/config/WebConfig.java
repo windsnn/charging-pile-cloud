@@ -14,6 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
     @Autowired
     private UserAuthInterceptor userAuthInterceptor;
 
+
     //拦截器配置
     @Override
     public void addInterceptors(InterceptorRegistry registry) {

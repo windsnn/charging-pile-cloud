@@ -1,6 +1,5 @@
 package com.trick.common.interceptor;
 
-import com.trick.common.utils.JwtUtil;
 import com.trick.common.utils.ThreadLocalUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,9 +12,6 @@ import java.util.Map;
 
 @Component
 public class UserAuthInterceptor implements HandlerInterceptor {
-    @Autowired
-    private JwtUtil jwtUtil;
-
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //获取角色

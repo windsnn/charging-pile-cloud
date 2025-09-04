@@ -1,14 +1,16 @@
-package com.trick.common.utils;
+package com.trick.user.utils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
 
 @Component
+@RefreshScope
 public class JwtUtil {
 
     @Value("${jwt.secret}")

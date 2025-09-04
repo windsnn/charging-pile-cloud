@@ -1,0 +1,27 @@
+package com.trick.admin.config;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.stereotype.Component;
+
+import java.util.Date;
+import java.util.Map;
+
+@Component
+@RefreshScope
+public class JwtUtil {
+
+    @Value("${jwt.secret}")
+    private String secret;
+
+    //获取一个时间限制为1天的token
+    public String getToken(Map<String, Object> claims) {
+        return Jwts.builder()
+                .signWith(SignatureAlgorithm.HS256, secret)
+                .addClaims(claims)
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 24))
+                .compact();
+    }
+}

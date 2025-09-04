@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import java.math.BigDecimal;
 import java.util.Map;
 
-@FeignClient(name = "user-service", configuration = FeignConfig.class)
+@FeignClient(name = "user-wallet-service", configuration = FeignConfig.class)
 public interface UserClient {
 
     //获取当前钱余额
