@@ -7,8 +7,6 @@ import com.trick.order.model.pojo.TransactionLog;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-
 import java.math.BigDecimal;
 import java.util.Map;
 

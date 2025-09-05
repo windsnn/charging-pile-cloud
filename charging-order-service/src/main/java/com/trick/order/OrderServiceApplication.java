@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 @ComponentScan(basePackages = "com.trick")
 @EnableFeignClients
+@EnableAsync
 public class OrderServiceApplication {
 
     public static void main(String[] args) {
