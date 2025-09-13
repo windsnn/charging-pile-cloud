@@ -1,5 +1,6 @@
 package com.trick.pile.controller.wechat;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.trick.common.result.Result;
 import com.trick.common.utils.ThreadLocalUtil;
 import com.trick.pile.model.dto.ChargingDTO;
@@ -29,7 +30,7 @@ public class ChargingPileController {
 
     //查找充电桩信息
     @GetMapping("/{id}")
-    public Result<ChargingPileVO> getById(@PathVariable Integer id) {
+    public Result<ChargingPileVO> getById(@PathVariable Integer id) throws JsonProcessingException {
         return Result.success(chargingPileService.getChargingPileById(id));
     }
 

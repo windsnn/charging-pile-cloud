@@ -1,5 +1,6 @@
 package com.trick.pile.controller.admin;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.trick.common.annotation.LogRecord;
 import com.trick.common.result.PageResult;
 import com.trick.common.result.Result;
@@ -23,7 +24,7 @@ public class AdminChargingPileController {
     }
 
     @GetMapping("/{id}")
-    Result<ChargingPileVO> getChargingPileById(@PathVariable Integer id) {
+    Result<ChargingPileVO> getChargingPileById(@PathVariable Integer id) throws JsonProcessingException {
         return Result.success(chargingPileService.getChargingPileById(id));
     }
 

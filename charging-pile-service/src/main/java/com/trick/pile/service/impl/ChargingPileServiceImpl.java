@@ -1,5 +1,6 @@
 package com.trick.pile.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.PageHelper;
@@ -12,6 +13,7 @@ import com.trick.pile.model.pojo.ChargingPile;
 import com.trick.pile.model.vo.ChargingPileVO;
 import com.trick.pile.service.ChargingPileService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,18 +23,22 @@ import org.springframework.data.geo.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
 import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.domain.geo.Metrics;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class ChargingPileServiceImpl implements ChargingPileService {
     private static final String PILE_GEO_KEY = "piles:geo";
+    private static final String PILE_KEY = "piles:no:";
+
     @Value("${tx.apiKey}")
     private String apiKey;
     @Value("${tx.apiUrl}")
@@ -44,7 +50,7 @@ public class ChargingPileServiceImpl implements ChargingPileService {
     @Autowired
     private RestTemplate restTemplate;
     @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    private StringRedisTemplate stringRedisTemplate;
 
     //分页条件查询
     @Override
@@ -61,12 +67,20 @@ public class ChargingPileServiceImpl implements ChargingPileService {
 
     // 根据ID查询
     @Override
-    @Cacheable(value = "pile", key = "#id")
-    public ChargingPileVO getChargingPileById(Integer id) {
+    //查询redis
+    public ChargingPileVO getChargingPileById(Integer id) throws JsonProcessingException {
+        String string = stringRedisTemplate.opsForValue().get(PILE_KEY + id);
+        if (Strings.isNotEmpty(string)) {
+            return objectMapper.readValue(string, ChargingPileVO.class);
+        }
+
         ChargingPileVO chargingPileVO = new ChargingPileVO();
         ChargingPile chargingPile = chargingPileMapper.getChargingPileById(id);
 
         BeanUtils.copyProperties(chargingPile, chargingPileVO);
+        String pileToJson = objectMapper.writeValueAsString(chargingPileVO);
+
+        stringRedisTemplate.opsForValue().set(PILE_KEY + id, pileToJson, 1, TimeUnit.HOURS);
 
         return chargingPileVO;
     }
@@ -78,7 +92,7 @@ public class ChargingPileServiceImpl implements ChargingPileService {
         dto.setUpdateTime(LocalDateTime.now());
         chargingPileMapper.addChargingPile(dto);
         // 同步地理位置到Redis GEO
-        redisTemplate.opsForGeo().add(
+        stringRedisTemplate.opsForGeo().add(
                 PILE_GEO_KEY,
                 new Point(dto.getLongitude(), dto.getLatitude()),
                 dto.getId().toString()
@@ -87,7 +101,7 @@ public class ChargingPileServiceImpl implements ChargingPileService {
 
     //更新充电桩
     @Override
-    @CacheEvict(value = "pile", key = "#id")
+    @CacheEvict(value = "piles:no", key = "#id")
     public void updateChargingPile(Integer id, ChargingPileAddAndUpdateDTO chargingUpdatePileDTO) {
         chargingUpdatePileDTO.setId(id);
         chargingUpdatePileDTO.setUpdateTime(LocalDateTime.now());
@@ -96,8 +110,8 @@ public class ChargingPileServiceImpl implements ChargingPileService {
 
         if (chargingUpdatePileDTO.getLongitude() != null && chargingUpdatePileDTO.getLatitude() != null) {
             // 同步地理位置到Redis GEO
-            redisTemplate.opsForGeo().remove(PILE_GEO_KEY, chargingUpdatePileDTO.getId().toString());
-            redisTemplate.opsForGeo().add(
+            stringRedisTemplate.opsForGeo().remove(PILE_GEO_KEY, chargingUpdatePileDTO.getId().toString());
+            stringRedisTemplate.opsForGeo().add(
                     PILE_GEO_KEY,
                     new Point(chargingUpdatePileDTO.getLongitude(), chargingUpdatePileDTO.getLatitude()),
                     chargingUpdatePileDTO.getId().toString()
@@ -107,11 +121,11 @@ public class ChargingPileServiceImpl implements ChargingPileService {
 
     //删除充电桩
     @Override
-    @CacheEvict(value = "pile", key = "#id")
+    @CacheEvict(value = "pile:no", key = "#id")
     public void deleteChargingPile(Integer id) {
         chargingPileMapper.deleteCharging(id);
         // 删除该充电桩的 Redis GEO
-        redisTemplate.opsForGeo().remove(PILE_GEO_KEY, String.valueOf(id));
+        stringRedisTemplate.opsForGeo().remove(PILE_GEO_KEY, String.valueOf(id));
     }
 
     //获取距离当前位置10公里以内的充电桩
@@ -123,7 +137,7 @@ public class ChargingPileServiceImpl implements ChargingPileService {
         int maxCandidates = 10; // 最多找10个候选桩
 
         // 使用 Redis GEO 查询10公里内的候选充电桩，按距离升序排序，最多返回10个
-        GeoOperations<String, String> geoOps = redisTemplate.opsForGeo();
+        GeoOperations<String, String> geoOps = stringRedisTemplate.opsForGeo();
         Point userLocation = new Point(longitude, latitude);
         Distance radius = new Distance(maxStraightDistanceInMeters / 1000, Metrics.KILOMETERS);
 

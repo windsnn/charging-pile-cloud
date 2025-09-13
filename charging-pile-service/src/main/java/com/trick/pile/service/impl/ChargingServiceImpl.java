@@ -1,5 +1,6 @@
 package com.trick.pile.service.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.trick.common.exception.BusinessException;
 import com.trick.common.result.Result;
 import com.trick.common.utils.ThreadLocalUtil;
@@ -17,6 +18,8 @@ import com.trick.pile.service.ChargingService;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,8 +39,6 @@ public class ChargingServiceImpl implements ChargingService {
     private UserClient userClient;
     @Autowired
     private ChargingSimulationService simulationService;
-    @Autowired
-    private ChargingPileMapper pileMapper;
     @Autowired
     private OrderClient orderClient;
     @Autowired
@@ -82,8 +83,7 @@ public class ChargingServiceImpl implements ChargingService {
                 // 更新充电桩状态为“充电中”
                 ChargingPileAddAndUpdateDTO dto = new ChargingPileAddAndUpdateDTO();
                 dto.setStatus(1); // 1-充电中
-                dto.setId(pileId);
-                pileMapper.updateChargingPile(dto);
+                chargingPileService.updateChargingPile(pileId, dto);
 
                 // 创建订单
                 ChargingOrderAddDTO orderAddDTO = new ChargingOrderAddDTO();
@@ -101,6 +101,8 @@ public class ChargingServiceImpl implements ChargingService {
                 // 异步启动充电模拟
                 simulationService.startSimulationCharging(orderNo, userId, balance, pile.getPowerRate(), pile.getPricePerKwh());
                 return orderNo;
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
             } finally {
                 lock.unlock(); // 释放锁
             }
@@ -151,4 +153,5 @@ public class ChargingServiceImpl implements ChargingService {
             throw new BusinessException(result.getMsg());
         }
     }
+
 }
