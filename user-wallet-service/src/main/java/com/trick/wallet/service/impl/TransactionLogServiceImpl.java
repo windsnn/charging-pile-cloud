@@ -8,6 +8,8 @@ import com.trick.wallet.model.pojo.TransactionLog;
 import com.trick.wallet.service.TransactionLogService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +33,7 @@ public class TransactionLogServiceImpl implements TransactionLogService {
 
     //插入交易流水号 1.钱包充值，2.钱包消费
     @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void addLogTransactions(Integer userId, TransactionLog transactionLog) {
         transactionLogMapper.addLogT(transactionLog);
     }

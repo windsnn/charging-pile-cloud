@@ -1,8 +1,6 @@
 package com.trick.wallet.service.impl;
 
 import com.trick.common.exception.BusinessException;
-import com.trick.common.result.Result;
-import com.trick.wallet.client.TransactionLogClient;
 import com.trick.wallet.mapper.WalletMapper;
 import com.trick.wallet.model.dto.AmountDTO;
 import com.trick.wallet.model.pojo.TransactionLog;
@@ -23,8 +21,6 @@ public class WalletServiceImpl implements WalletService {
     private TransactionLogService transactionLogService;
     @Autowired
     private WalletMapper walletMapper;
-    @Autowired
-    private TransactionLogClient transactionLogClient;
 
     //获取个人余额
     @Override
@@ -67,7 +63,7 @@ public class WalletServiceImpl implements WalletService {
         } catch (Exception e) {
             logT.setStatus(2);//失败
             logT.setDescription("模拟充值失败");
-            transactionLogClient.addLogT(logT);
+            transactionLogService.addLogTransactions(id, logT);
 
             log.error(e.getMessage(), e);
             throw new BusinessException("添加余额失败");
@@ -75,6 +71,6 @@ public class WalletServiceImpl implements WalletService {
 
         //添加充值记录
         logT.setStatus(1);//成功
-        transactionLogClient.addLogT(logT);
+        transactionLogService.addLogTransactions(id, logT);
     }
 }

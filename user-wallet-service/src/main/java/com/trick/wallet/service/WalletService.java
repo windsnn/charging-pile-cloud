@@ -10,4 +10,5 @@ public interface WalletService {
     //充值模块（钱包充值）
     //目前为模拟充值
     void recharge(Integer id, BigDecimal amount);
+
 }

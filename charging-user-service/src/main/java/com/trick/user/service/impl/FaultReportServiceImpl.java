@@ -40,7 +40,7 @@ public class FaultReportServiceImpl implements FaultReportService {
         return jsonConversionAndPaged(list);
     }
 
-    //根据ID更新处理状态（暂定）
+    //根据ID更新处理状态
     @Override
     public void updateFaultReport(Integer id, FaultReportUpdateDTO updateDTO) {
         updateDTO.setId(id);

@@ -2,6 +2,7 @@ package com.trick.order.service;
 
 import com.trick.common.result.PageResult;
 import com.trick.order.model.dto.ChargingOrderAddDTO;
+import com.trick.order.model.pojo.ChargingOrder;
 import com.trick.order.model.vo.ChargingOrderVO;
 
 import java.util.List;
@@ -15,4 +16,10 @@ public interface ChargingOrderService {
 
     //添加订单
     void addOrder(ChargingOrderAddDTO chargingOrderAddDTO);
+
+    //更新订单
+    void updateByOrderNo(ChargingOrder order);
+
+    //获取订单
+    ChargingOrder getOrder(String orderNo);
 }

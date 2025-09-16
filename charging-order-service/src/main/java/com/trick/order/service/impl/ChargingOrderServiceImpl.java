@@ -5,10 +5,13 @@ import com.github.pagehelper.PageInfo;
 import com.trick.common.result.PageResult;
 import com.trick.order.mapper.ChargingOrderMapper;
 import com.trick.order.model.dto.ChargingOrderAddDTO;
+import com.trick.order.model.pojo.ChargingOrder;
 import com.trick.order.model.vo.ChargingOrderVO;
 import com.trick.order.service.ChargingOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -38,5 +41,16 @@ public class ChargingOrderServiceImpl implements ChargingOrderService {
     @Override
     public void addOrder(ChargingOrderAddDTO chargingOrderAddDTO) {
         orderMapper.addOrder(chargingOrderAddDTO);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void updateByOrderNo(ChargingOrder order) {
+        orderMapper.updateByOrderNo(order);
+    }
+
+    @Override
+    public ChargingOrder getOrder(String orderNo) {
+        return orderMapper.getOrder(orderNo);
     }
 }
