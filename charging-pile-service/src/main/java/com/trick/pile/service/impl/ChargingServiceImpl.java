@@ -15,6 +15,7 @@ import com.trick.pile.model.dto.ChargingPileAddAndUpdateDTO;
 import com.trick.pile.model.vo.ChargingPileVO;
 import com.trick.pile.service.ChargingPileService;
 import com.trick.pile.service.ChargingService;
+import io.seata.spring.annotation.GlobalTransactional;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,7 +49,7 @@ public class ChargingServiceImpl implements ChargingService {
 
     // 核心业务（充电逻辑）
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @GlobalTransactional(rollbackFor = Exception.class)
     public String startCharging(Integer userId, ChargingDTO chargingDTO) {
         Integer pileId = chargingDTO.getPileId();
         RLock lock = redissonClient.getLock("lock:pile:" + pileId);
@@ -114,7 +115,7 @@ public class ChargingServiceImpl implements ChargingService {
 
     //核心逻辑（用户主动结束充电）
     @Override
-    @Transactional(rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public Map<String, String> stopChargingByUser(Integer userId, ChargingDTO chargingDTO) {
         //获取订单号
         String orderNo = chargingDTO.getOrderNo();

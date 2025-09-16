@@ -8,3 +8,4 @@ spring:
         file-extension: yaml
         shared-configs:
           - data-id: shared-configs.yaml
+          - data-id: order-tx.yaml

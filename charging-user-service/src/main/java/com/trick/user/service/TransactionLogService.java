@@ -10,6 +10,6 @@ public interface TransactionLogService {
 
     PageResult<TransactionLog> getPagedTransactions(Integer id, Integer pageNum, Integer pageSize);
 
-    void recharge(Integer id, BigDecimal amount);
-
+    //添加记录
+    void addLogT(TransactionLog logT);
 }

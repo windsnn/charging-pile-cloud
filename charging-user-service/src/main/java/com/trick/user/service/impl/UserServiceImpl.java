@@ -94,17 +94,6 @@ public class UserServiceImpl implements UserService {
         userMapper.updateUser(dto);
     }
 
-    //获取个人余额
-    @Override
-    public BigDecimal getWallet(Integer id) {
-        return userMapper.getWallet(id);
-    }
-
-    //更新账户余额
-    @Override
-    public void addBalance(Integer id, BigDecimal amount) {
-        userMapper.addBalance(id, amount);
-    }
 
     //======================内部方法=============================
 

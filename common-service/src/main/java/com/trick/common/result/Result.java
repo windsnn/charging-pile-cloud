@@ -24,6 +24,12 @@ public class Result<T> {
         return build(ResultCode.ERROR.getCode(), msg, null);
     }
 
+    //自定义数据
+    //默认500
+    public static <T> Result<T> error(String msg, T data) {
+        return build(ResultCode.ERROR.getCode(), msg, data);
+    }
+
     //自定义code
     public static <T> Result<T> error(Integer code, String msg) {
         return build(code, msg, null);

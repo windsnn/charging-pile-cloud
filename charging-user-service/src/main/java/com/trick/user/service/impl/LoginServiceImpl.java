@@ -48,7 +48,6 @@ public class LoginServiceImpl implements LoginService {
      * @return token
      */
     @Override
-    @Transactional(rollbackFor = Exception.class)
     public String loginUser(String code) throws JsonProcessingException {
         // 1. 调用微信 API 获取 openid & session_key
         String url = "https://api.weixin.qq.com/sns/jscode2session" +
