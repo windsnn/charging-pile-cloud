@@ -3,6 +3,7 @@ package com.trick.marketing.mapper;
 import com.trick.common.result.Result;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
+import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.vo.CouponsVO;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -16,4 +17,7 @@ public interface CouponMapper {
     //查询券，条件
     List<CouponsVO> getCoupons(QueryCouponsDTO dto);
 
+    Coupons getCouponById(Integer couponId);
+
+    void updateStock(Integer couponId);
 }

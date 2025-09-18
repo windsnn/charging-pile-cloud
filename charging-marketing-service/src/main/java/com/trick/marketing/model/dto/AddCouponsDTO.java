@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
@@ -20,9 +21,9 @@ public class AddCouponsDTO {
     private LocalDateTime validStartTime;
     private LocalDateTime validEndTime;
     private Integer daysAfterClaim;
-    private Double discountPercent;
-    private Double minSpend;
-    private Double maxDiscountAmount;
-    private Double discountAmount;
+    private BigDecimal discountPercent;
+    private BigDecimal minSpend;
+    private BigDecimal maxDiscountAmount;
+    private BigDecimal discountAmount;
 
 }

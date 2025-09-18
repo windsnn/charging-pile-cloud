@@ -14,6 +14,13 @@
                 #{discountAmount})
     </insert>
 
+    <update id="updateStock">
+        update coupons
+        set claimed_quantity = claimed_quantity + 1
+        where id = #{couponId}
+          and total_quantity > claimed_quantity
+    </update>
+
     <select id="getCoupons" resultType="com.trick.marketing.model.vo.CouponsVO">
         select id, code, name, type, description, status, total_quantity, claimed_quantity, used_quantity,
         validity_type, valid_start_time, valid_end_time, days_after_claim, discount_percent, min_spend,
@@ -31,6 +38,30 @@
             </if>
         </where>
         order by id desc
+    </select>
+
+    <select id="getCouponById" resultType="com.trick.marketing.model.pojo.Coupons">
+        select id,
+               code,
+               name,
+               type,
+               description,
+               status,
+               total_quantity,
+               claimed_quantity,
+               used_quantity,
+               validity_type,
+               valid_start_time,
+               valid_end_time,
+               days_after_claim,
+               discount_percent,
+               min_spend,
+               max_discount_amount,
+               discount_amount,
+               create_time,
+               update_time
+        from coupons
+        where id = #{couponId}
     </select>
 
 

@@ -1,11 +1,11 @@
 package com.trick.marketing.service.impl;
 
 import com.trick.common.exception.BusinessException;
-import com.trick.common.result.Result;
 import com.trick.marketing.mapper.CouponMapper;
 import com.trick.marketing.mapper.UserCouponMapper;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
+import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.vo.CouponsVO;
 import com.trick.marketing.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +47,28 @@ public class CouponServiceImpl implements CouponService {
     @Override
     public List<CouponsVO> getCoupons(QueryCouponsDTO dto) {
         return couponMapper.getCoupons(dto);
+    }
+
+
+    /**
+     * 根据优惠券ID查询优惠券全部信息
+     *
+     * @param couponId 优惠券ID
+     * @return 优惠券实体
+     */
+    @Override
+    public Coupons getCouponById(Integer couponId) {
+        return couponMapper.getCouponById(couponId);
+    }
+
+    /**
+     * 原子更新库存
+     *
+     * @param couponId 优惠券ID
+     */
+    @Override
+    public void updateStock(Integer couponId) {
+        couponMapper.updateStock(couponId);
     }
 
     //todo 管理员修改优惠券状态  and 定时任务修改过期优惠券状态

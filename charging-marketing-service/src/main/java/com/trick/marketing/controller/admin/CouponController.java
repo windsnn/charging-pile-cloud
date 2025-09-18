@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("admin/marketing/coupons")
+@RequestMapping("/admin/marketing/coupons")
 public class CouponController {
     @Autowired
     private CouponService couponService;
@@ -35,7 +35,7 @@ public class CouponController {
      * @return 统一返回 Result 泛型 List CouponsVO
      */
     @GetMapping
-    public Result<List<CouponsVO>> getCoupons(@RequestParam QueryCouponsDTO dto) {
+    public Result<List<CouponsVO>> getCoupons(QueryCouponsDTO dto) {
         return Result.success(couponService.getCoupons(dto));
     }
 

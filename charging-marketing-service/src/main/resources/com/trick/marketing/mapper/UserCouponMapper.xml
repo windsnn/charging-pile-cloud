@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.trick.marketing.mapper.UserCouponMapper">
+    <insert id="addCouponToUser">
+        insert into user_coupons(user_id, coupon_id, claimed_at, expire_at)
+        values (#{userId}, #{couponId}, #{claimedAt}, #{expireAt})
+    </insert>
+
+    <select id="hasUserClaimedCoupon" resultType="java.lang.Boolean">
+        select exists(select 1
+                      from user_coupons
+                      where user_id = #{userId}
+                        and coupon_id = #{couponId}) as has_claimed
+    </select>
+
+    <select id="getCouponById" resultType="com.trick.marketing.model.dto.CouponsDTO">
+        select user_coupons.status as status,
+               claimed_at,
+               expire_at,
+               used_at,
+               transaction_id,
+               name,
+               type,
+               description,
+               discount_percent,
+               min_spend,
+               max_discount_amount,
+               discount_amount
+        from user_coupons
+                 left join coupons on user_coupons.coupon_id = coupons.id
+        where user_id = #{userId}
+          and coupon_id = #{couponId}
+    </select>
+
+</mapper>

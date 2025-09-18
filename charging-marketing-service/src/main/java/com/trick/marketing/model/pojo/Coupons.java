@@ -1,5 +1,6 @@
 package com.trick.marketing.model.pojo;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -24,10 +25,10 @@ public class Coupons {
     private LocalDateTime validStartTime;
     private LocalDateTime validEndTime;
     private Integer daysAfterClaim;
-    private Double discountPercent;
-    private Double minSpend;
-    private Double maxDiscountAmount;
-    private Double discountAmount;
+    private BigDecimal discountPercent;
+    private BigDecimal minSpend;
+    private BigDecimal maxDiscountAmount;
+    private BigDecimal discountAmount;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 
