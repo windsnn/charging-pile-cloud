@@ -9,3 +9,6 @@ spring:
         shared-configs:
           - data-id: shared-configs.yaml
           - data-id: order-tx.yaml
+
+seata:
+  data-source-proxy-mode: XA

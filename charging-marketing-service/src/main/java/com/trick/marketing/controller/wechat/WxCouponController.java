@@ -26,7 +26,9 @@ public class WxCouponController {
         return Result.success();
     }
 
-    //todo  分页获取用户的优惠券列表
+    //todo  分页获取用户的优惠券列表（个人页面）
+    //todo 分页获取已经启用的优惠券列表（优惠券中心）
+
 
     /**
      * 通过优惠券ID和用户ID，获取该优惠券的部分信息
@@ -40,5 +42,29 @@ public class WxCouponController {
         return Result.success(userCouponService.getCouponById(userId, couponId));
     }
 
+    /**
+     * 查询该用户是否拥有该优惠券ID
+     *
+     * @param couponId 优惠券ID
+     * @return 是否
+     * @deprecated 暂时不需要使用
+     */
+    @GetMapping("/ownership/{id}")
+    public Result<Boolean> hasUserClaimedCoupon(@PathVariable("id") Integer couponId) {
+        Integer userId = ThreadLocalUtil.getUserId();
+        return Result.success(userCouponService.hasUserClaimedCoupon(userId, couponId));
+    }
 
+    /**
+     * 更新用户优惠券状态
+     *
+     * @param couponId 优惠券ID
+     * @param status   优惠券状态（0/1/2 未使用/已使用/已过期）
+     * @return 统一格式
+     */
+    @PutMapping("/status/{id}")
+    public Result<Integer> updateCouponStatus(@PathVariable("id") Integer couponId, @RequestParam("status") Integer status) {
+        Integer userId = ThreadLocalUtil.getUserId();
+        return Result.success(userCouponService.updateCouponStatus(userId, couponId, status));
+    }
 }

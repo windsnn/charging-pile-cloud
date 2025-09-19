@@ -9,6 +9,14 @@
         values (#{userId}, #{couponId}, #{claimedAt}, #{expireAt})
     </insert>
 
+    <update id="updateCouponStatus">
+        update user_coupons
+        set status = #{status}
+        where user_id = #{userId}
+          and coupon_id = #{couponId}
+          and status = 0
+    </update>
+
     <select id="hasUserClaimedCoupon" resultType="java.lang.Boolean">
         select exists(select 1
                       from user_coupons

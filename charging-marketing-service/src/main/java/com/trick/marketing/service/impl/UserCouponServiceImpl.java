@@ -1,7 +1,6 @@
 package com.trick.marketing.service.impl;
 
 import com.trick.common.exception.BusinessException;
-import com.trick.common.result.Result;
 import com.trick.marketing.mapper.UserCouponMapper;
 import com.trick.marketing.model.dto.CouponsDTO;
 import com.trick.marketing.model.pojo.Coupons;
@@ -52,7 +51,7 @@ public class UserCouponServiceImpl implements UserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addCouponToUser(Integer userId, Integer couponId) {
-        //todo 使用分布式锁保证多实例下的一人一票
+        //使用Redisson分布式锁保证多实例下的一人一票
         RLock lock = redissonClient.getLock("couponLock:" + userId);
 
         // 尝试获取锁，最多等待10秒，否则返回false;引入看门狗机制
@@ -155,7 +154,20 @@ public class UserCouponServiceImpl implements UserCouponService {
      * @param couponId 优惠券ID
      * @return 是否拥有
      */
+    @Override
     public boolean hasUserClaimedCoupon(Integer userId, Integer couponId) {
         return userCouponMapper.hasUserClaimedCoupon(userId, couponId);
+    }
+
+    /**
+     * 更新用户优惠券状态
+     *
+     * @param userId   用户ID
+     * @param couponId 优惠券ID
+     * @param status   优惠券状态
+     */
+    @Override
+    public Integer updateCouponStatus(Integer userId, Integer couponId, Integer status) {
+        return userCouponMapper.updateCouponStatus(userId, couponId, status);
     }
 }

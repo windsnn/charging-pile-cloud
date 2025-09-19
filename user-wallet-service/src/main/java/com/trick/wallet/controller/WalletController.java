@@ -41,7 +41,7 @@ public class WalletController {
         // 获取userId
         Integer userId = ThreadLocalUtil.getUserId();
 
-        walletService.recharge(userId, amountDTO.getAmount());
+        walletService.recharge(userId, amountDTO);
         return Result.success();
     }
 

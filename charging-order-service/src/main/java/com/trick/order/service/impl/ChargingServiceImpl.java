@@ -13,6 +13,8 @@ import com.trick.order.service.ChargingService;
 import io.seata.spring.annotation.GlobalTransactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -31,7 +33,7 @@ public class ChargingServiceImpl implements ChargingService {
 
     //核心逻辑（订单结算服务）
     @Override
-    @GlobalTransactional(rollbackFor = Exception.class)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public String finalizeCharging(Integer userId, String orderNo) {
         ChargingOrder order = chargingOrderService.getOrder(orderNo);
         if (order == null || !order.getUserId().equals(userId)) {

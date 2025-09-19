@@ -115,7 +115,7 @@ public class ChargingServiceImpl implements ChargingService {
 
     //核心逻辑（用户主动结束充电）
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @GlobalTransactional
     public Map<String, String> stopChargingByUser(Integer userId, ChargingDTO chargingDTO) {
         //获取订单号
         String orderNo = chargingDTO.getOrderNo();
@@ -137,7 +137,7 @@ public class ChargingServiceImpl implements ChargingService {
 
     //核心逻辑（余额不足停止充电）
     @Override
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @GlobalTransactional
     public void stopChargingDueToInsufficientBalance(Integer userId, String orderNo) {
         simulationService.stopCharging(orderNo);
 

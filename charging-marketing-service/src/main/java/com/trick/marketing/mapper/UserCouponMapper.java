@@ -11,9 +11,11 @@ public interface UserCouponMapper {
     //用户账户添加优惠券
     void addCouponToUser(UserCoupons userCoupons);
 
-    //用户是否领取优惠券
+    //用户是否领取过优惠券
     boolean hasUserClaimedCoupon(Integer userId, Integer couponId);
 
     //根据ID获取优惠券
     CouponsDTO getCouponById(Integer userId, Integer couponId);
+
+    Integer updateCouponStatus(Integer userId, Integer couponId, Integer status);
 }

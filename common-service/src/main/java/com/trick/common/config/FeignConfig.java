@@ -1,11 +1,17 @@
 package com.trick.common.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Logger;
 import feign.RequestInterceptor;
+import feign.codec.Decoder;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.boot.autoconfigure.http.HttpMessageConverters;
 import org.springframework.cloud.openfeign.FallbackFactory;
+import org.springframework.cloud.openfeign.support.ResponseEntityDecoder;
+import org.springframework.cloud.openfeign.support.SpringDecoder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -43,5 +49,13 @@ public class FeignConfig {
     public Logger.Level feignLoggerLevel() {
         return Logger.Level.NONE;
     }
+
+    @Bean
+    public Decoder feignDecoder(ObjectMapper objectMapper) {
+        return new ResponseEntityDecoder(new SpringDecoder(() -> new HttpMessageConverters(
+                new MappingJackson2HttpMessageConverter(objectMapper)
+        )));
+    }
+
 
 }

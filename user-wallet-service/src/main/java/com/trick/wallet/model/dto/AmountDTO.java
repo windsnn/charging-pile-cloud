@@ -10,5 +10,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AmountDTO {
+    Integer couponId;//优惠券id
+
     BigDecimal amount;
 }
