@@ -18,6 +18,7 @@ public class Coupons {
     private Integer type;
     private String description;
     private Integer status;
+    private Integer isHot;
     private Integer totalQuantity;
     private Integer claimedQuantity;
     private Integer usedQuantity;

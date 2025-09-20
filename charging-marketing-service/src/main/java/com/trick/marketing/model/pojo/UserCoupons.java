@@ -14,7 +14,6 @@ public class UserCoupons {
     private Integer id;
     private Integer userId;
     private Integer couponId;
-    private Integer status;
     private LocalDateTime claimedAt;
     private LocalDateTime expireAt;
     private LocalDateTime usedAt;

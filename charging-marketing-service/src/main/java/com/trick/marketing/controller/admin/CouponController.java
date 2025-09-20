@@ -3,6 +3,7 @@ package com.trick.marketing.controller.admin;
 import com.trick.common.result.Result;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
+import com.trick.marketing.model.dto.UpdateCouponsDTO;
 import com.trick.marketing.model.vo.CouponsVO;
 import com.trick.marketing.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,4 +40,18 @@ public class CouponController {
         return Result.success(couponService.getCoupons(dto));
     }
 
+    /**
+     * 更新优惠券状态
+     *
+     * @param couponId 优惠券ID
+     * @param dto      更新数据
+     * @return 统一
+     */
+    @PostMapping("/{id}")
+    public Result<?> updateCoupon(@PathVariable("id") Integer couponId, @RequestBody UpdateCouponsDTO dto) {
+        couponService.updateCoupon(couponId, dto);
+        return Result.success();
+    }
+
+    //todo 分页获取所有的优惠券列表
 }

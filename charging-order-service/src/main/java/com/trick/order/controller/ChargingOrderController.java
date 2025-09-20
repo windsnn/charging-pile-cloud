@@ -30,7 +30,7 @@ public class ChargingOrderController {
         return Result.success(orderService.getPagedOrder(userId, pageNum, pageSize));
     }
 
-    //添加订单
+    //添加订单（内部接口）
     @PostMapping()
     public Result<?> addOrder(@RequestBody ChargingOrderAddDTO chargingOrderAddDTO) {
         Integer userId = ThreadLocalUtil.getUserId();

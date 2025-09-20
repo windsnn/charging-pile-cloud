@@ -2,6 +2,7 @@ package com.trick.marketing.service;
 
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
+import com.trick.marketing.model.dto.UpdateCouponsDTO;
 import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.vo.CouponsVO;
 
@@ -17,4 +18,7 @@ public interface CouponService {
 
     //更新库存
     void updateStock(Integer couponId);
+
+    //管理员更新优惠券状态
+    void updateCoupon(Integer couponId, UpdateCouponsDTO dto);
 }

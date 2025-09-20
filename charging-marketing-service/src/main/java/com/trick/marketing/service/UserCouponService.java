@@ -1,6 +1,6 @@
 package com.trick.marketing.service;
 
-import com.trick.common.result.Result;
+import com.trick.marketing.model.dto.UpdateCouponForUserDTO;
 import com.trick.marketing.model.vo.wxCouponsVO.CouponBaseVO;
 
 public interface UserCouponService {
@@ -8,8 +8,7 @@ public interface UserCouponService {
 
     CouponBaseVO getCouponById(Integer userId, Integer couponId);
 
-    boolean hasUserClaimedCoupon(Integer userId, Integer couponId);
+    void updateCouponInformationForUser(Integer userId, Integer couponId, UpdateCouponForUserDTO dto);
 
-    //更新用户优惠券状态
-    Integer updateCouponStatus(Integer userId, Integer couponId, Integer status);
+    CouponBaseVO getCoupons(Integer userId, Integer type);
 }

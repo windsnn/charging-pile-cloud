@@ -9,12 +9,12 @@
         values (#{userId}, #{couponId}, #{claimedAt}, #{expireAt})
     </insert>
 
-    <update id="updateCouponStatus">
-        update user_coupons
-        set status = #{status}
-        where user_id = #{userId}
-          and coupon_id = #{couponId}
-          and status = 0
+    <update id="updateCouponInformationForUser">
+        UPDATE user_coupons
+        SET used_at        = #{dto.usedAt},
+            transaction_id = #{dto.transactionId}
+        WHERE user_id = #{userId}
+          AND coupon_id = #{couponId}
     </update>
 
     <select id="hasUserClaimedCoupon" resultType="java.lang.Boolean">
@@ -25,22 +25,48 @@
     </select>
 
     <select id="getCouponById" resultType="com.trick.marketing.model.dto.CouponsDTO">
-        select user_coupons.status as status,
-               claimed_at,
-               expire_at,
-               used_at,
-               transaction_id,
-               name,
-               type,
-               description,
-               discount_percent,
-               min_spend,
-               max_discount_amount,
-               discount_amount
-        from user_coupons
-                 left join coupons on user_coupons.coupon_id = coupons.id
-        where user_id = #{userId}
-          and coupon_id = #{couponId}
+        SELECT uc.claimed_at,
+               uc.expire_at,
+               uc.used_at,
+               uc.transaction_id,
+               c.name,
+               c.type,
+               c.description,
+               c.discount_percent,
+               c.min_spend,
+               c.max_discount_amount,
+               c.discount_amount,
+               CASE
+                   WHEN used_at IS NOT NULL THEN 1
+                   WHEN used_at IS NULL AND NOW() > expire_at THEN 2
+                   ELSE 0 END AS status
+        FROM user_coupons uc
+                 LEFT JOIN coupons c ON uc.coupon_id = c.id
+        WHERE user_id = #{userId}
+          AND coupon_id = #{couponId}
     </select>
+
+    <select id="getCoupons" resultType="com.trick.marketing.model.dto.CouponsDTO">
+        select uc.claimed_at,
+               uc.expire_at,
+               uc.used_at,
+               uc.transaction_id,
+               c.name,
+               c.type,
+               c.description,
+               c.discount_percent,
+               c.min_spend,
+               c.max_discount_amount,
+               c.discount_amount,
+               CASE
+                   WHEN used_at IS NOT NULL THEN 1
+                   WHEN used_at IS NULL AND NOW() > expire_at THEN 2
+                   ELSE 0 END AS status
+        from user_coupons uc
+                 left join coupons c on uc.coupon_id = c.id
+        where uc.user_id = #{userId}
+          and c.type = #{type}
+    </select>
+
 
 </mapper>

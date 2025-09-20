@@ -54,7 +54,6 @@ public class ChargingServiceImpl implements ChargingService {
         log.setTransactionNo(transactionNo);
         log.setUserId(userId);
         log.setOrderId(order.getId());
-        log.setAmount(actualDeduction);
         log.setType(2); // 2-充电支付
         log.setStatus(1);
         log.setDescription("充电消费，订单号：" + orderNo);
@@ -63,7 +62,6 @@ public class ChargingServiceImpl implements ChargingService {
         order.setEndTime(LocalDateTime.now());
         order.setDuration((int) duration);
         order.setPowerConsumed(powerConsumed);
-        order.setTotalFee(actualDeduction); // 记录实际扣款金额
         order.setStatus(1); // 1-已完成
 
         try {
@@ -86,6 +84,10 @@ public class ChargingServiceImpl implements ChargingService {
                 throw new BusinessException(wallet.getMsg());
             }
             actualDeduction = totalFee.min(wallet.getData().get("balance"));
+
+            //记录添加扣款金额
+            log.setAmount(actualDeduction);
+            order.setTotalFee(actualDeduction); // 记录实际扣款金额
 
             // 4 从用户余额扣款
             if (actualDeduction.compareTo(BigDecimal.ZERO) > 0) {

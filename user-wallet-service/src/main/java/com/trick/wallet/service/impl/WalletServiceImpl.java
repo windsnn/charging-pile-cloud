@@ -7,6 +7,7 @@ import com.trick.wallet.mapper.WalletMapper;
 import com.trick.wallet.model.dto.AmountDTO;
 import com.trick.wallet.model.dto.CouponDTO;
 import com.trick.wallet.model.pojo.TransactionLog;
+import com.trick.wallet.model.vo.UpdateCouponForUserVO;
 import com.trick.wallet.service.TransactionLogService;
 import com.trick.wallet.service.WalletService;
 import io.seata.spring.annotation.GlobalTransactional;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
@@ -49,7 +51,7 @@ public class WalletServiceImpl implements WalletService {
     //目前为模拟充值
     @Override
     @GlobalTransactional
-    public void recharge(Integer id, AmountDTO amountDTO) {
+    public void recharge(Integer userId, AmountDTO amountDTO) {
 
         //向钱包充值的金额
         BigDecimal amount = amountDTO.getAmount();
@@ -57,7 +59,7 @@ public class WalletServiceImpl implements WalletService {
         BigDecimal amountTemp = null;
 
         // 1. 校验参数
-        if (id == null || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+        if (userId == null || amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
             throw new BusinessException(422, "充值金额必须大于0");
         }
 
@@ -67,7 +69,7 @@ public class WalletServiceImpl implements WalletService {
         // 3. 插入交易记录
         TransactionLog logT = new TransactionLog();
         logT.setTransactionNo(transactionNo);
-        logT.setUserId(id);
+        logT.setUserId(userId);
         logT.setOrderId(null);
         logT.setAmount(amount);
         logT.setType(1); // 1-充值
@@ -102,12 +104,20 @@ public class WalletServiceImpl implements WalletService {
                     //todo 调用真实支付机制，使用折扣逻辑后的amountTemp进行支付
 
 
-                    // 设置该优惠券为已使用
-                    Result<Integer> result = marketingClient.setTheCouponStatus(couponId, 1);
-                    if (result.getCode() != 200 || result.getData() == 0) {
+                    //5 添加充值记录
+                    logT.setStatus(1);//成功
+                    transactionLogService.addLogTransactions(userId, logT);
+
+                    //6 更新优惠券信息，记录优惠券的使用时间等（设置该优惠券为已使用）
+                    Result<?> result = marketingClient.updateCouponInformationForUser(
+                            couponId,
+                            new UpdateCouponForUserVO(LocalDateTime.now(), logT.getId()));
+
+                    if (result.getCode() != 200) {
                         throw new BusinessException(result.getMsg());
                     }
 
+                    //设置交易成功描述
                     logT.setDescription("模拟充值，成功使用优惠券，优惠券ID为：" + couponId);
 
                 } finally {
@@ -116,20 +126,17 @@ public class WalletServiceImpl implements WalletService {
             }
 
             //钱包充值
-            walletMapper.updateBalance(id, amount);
+            walletMapper.updateBalance(userId, amount);
 
         } catch (Exception e) {
             logT.setStatus(2);//失败
             logT.setDescription("模拟充值失败");
-            transactionLogService.addLogTransactions(id, logT);
+            transactionLogService.addLogTransactions(userId, logT);
 
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage());
         }
 
-        //添加充值记录
-        logT.setStatus(1);//成功
-        transactionLogService.addLogTransactions(id, logT);
     }
 
     //-------------------------优惠券价格计算----------------------------------

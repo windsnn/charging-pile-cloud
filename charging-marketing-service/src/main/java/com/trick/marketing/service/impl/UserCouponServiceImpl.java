@@ -1,8 +1,10 @@
 package com.trick.marketing.service.impl;
 
 import com.trick.common.exception.BusinessException;
+import com.trick.marketing.mapper.CouponMapper;
 import com.trick.marketing.mapper.UserCouponMapper;
 import com.trick.marketing.model.dto.CouponsDTO;
+import com.trick.marketing.model.dto.UpdateCouponForUserDTO;
 import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.pojo.UserCoupons;
 import com.trick.marketing.model.vo.wxCouponsVO.CouponBaseVO;
@@ -10,10 +12,12 @@ import com.trick.marketing.model.vo.wxCouponsVO.DiscountCouponVO;
 import com.trick.marketing.model.vo.wxCouponsVO.VouchersVO;
 import com.trick.marketing.service.CouponService;
 import com.trick.marketing.service.UserCouponService;
+import org.jetbrains.annotations.Nullable;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -37,10 +41,12 @@ public class UserCouponServiceImpl implements UserCouponService {
     private RedissonClient redissonClient;
     @Autowired
     private CouponService couponService;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
+    @Autowired
+    private CouponMapper couponMapper;
 
-    //todo 用户优惠券中心 获取所有可用优惠券
-
-    //todo 查询我的所有优惠券
+    //todo 定时任务设置优惠券为过期
 
     /**
      * 用户添加优惠券到账户
@@ -51,6 +57,8 @@ public class UserCouponServiceImpl implements UserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addCouponToUser(Integer userId, Integer couponId) {
+        //todo 更改为热点数据redis秒杀+MQ消息队列
+
         //使用Redisson分布式锁保证多实例下的一人一票
         RLock lock = redissonClient.getLock("couponLock:" + userId);
 
@@ -76,8 +84,19 @@ public class UserCouponServiceImpl implements UserCouponService {
                 if (coupons == null) {
                     throw new BusinessException("不存在的优惠券");
                 }
+
+                LocalDateTime now = LocalDateTime.now();
+                LocalDateTime startTime = coupons.getValidStartTime();
+                LocalDateTime endTime = coupons.getValidEndTime();
+
                 if (!Objects.equals(coupons.getStatus(), ENABLED)) {
                     throw new BusinessException("该优惠券已不可领取");
+                }
+
+                if (startTime.isAfter(now)) {
+                    throw new BusinessException("未到该优惠券领取时间");
+                } else if (endTime.isBefore(now)) {
+                    throw new BusinessException("该优惠券已过期，无法领取");
                 }
 
                 //3 更新库存（原子更新防止超卖）
@@ -88,9 +107,7 @@ public class UserCouponServiceImpl implements UserCouponService {
                 }
 
                 //4 进行用户绑定
-                LocalDateTime now = LocalDateTime.now();
                 UserCoupons userCoupons = new UserCoupons();
-
                 userCoupons.setUserId(userId);
                 userCoupons.setCouponId(couponId);
                 userCoupons.setClaimedAt(now);
@@ -103,8 +120,6 @@ public class UserCouponServiceImpl implements UserCouponService {
                 //5 持久化数据库
                 userCouponMapper.addCouponToUser(userCoupons);
 
-            } catch (BusinessException e) {
-                throw new BusinessException(e.getMessage());
             } finally {
                 lock.unlock();
             }
@@ -116,6 +131,7 @@ public class UserCouponServiceImpl implements UserCouponService {
 
     /**
      * 根据优惠券类型的不同，返回不同的VO
+     * 获取的是用户已有的优惠券信息
      *
      * @param userId   用户ID
      * @param couponId 优惠券ID
@@ -129,8 +145,62 @@ public class UserCouponServiceImpl implements UserCouponService {
             throw new BusinessException("该用户不拥有该优惠券");
         }
 
-        //根据type的不同拷贝到不同vo
-        switch (couponsDTO.getType()) {
+        //调用方法获取VO
+        return getCouponBaseVO(couponsDTO.getType(), couponsDTO);
+    }
+
+    /**
+     * 根据优惠券类型返回不同的VO
+     *
+     * @param type 优惠券类型
+     * @return CouponBaseVO
+     */
+    @Override
+    public CouponBaseVO getCoupons(Integer userId, Integer type) {
+        CouponsDTO couponsDTO = userCouponMapper.getCoupons(userId, type);
+        //调用方法获取VO
+        return getCouponBaseVO(type, couponsDTO);
+    }
+
+    /**
+     * 更新用户优惠券数据，为已使用
+     *
+     * @param userId   用户ID
+     * @param couponId 优惠券ID
+     * @param dto      更新的内容
+     */
+    @Override
+    @Transactional
+    public void updateCouponInformationForUser(Integer userId, Integer couponId, UpdateCouponForUserDTO dto) {
+        if (dto != null) {
+            userCouponMapper.updateCouponInformationForUser(userId, couponId, dto);
+        } else {
+            throw new BusinessException("传入的数据为空");
+        }
+    }
+
+//------------------------私人方法---------------------------
+
+    /**
+     * 查询数据库该用户是否拥有该优惠券
+     *
+     * @param userId   用户ID
+     * @param couponId 优惠券ID
+     * @return 是否拥有
+     */
+    private boolean hasUserClaimedCoupon(Integer userId, Integer couponId) {
+        return userCouponMapper.hasUserClaimedCoupon(userId, couponId);
+    }
+
+    /**
+     * 根据type的不同拷贝到不同vo
+     *
+     * @param type       优惠券的类型
+     * @param couponsDTO 优惠券的DTO
+     * @return 多态返回，向上转型
+     */
+    private CouponBaseVO getCouponBaseVO(Integer type, CouponsDTO couponsDTO) {
+        switch (type) {
             case DISCOUNT_COUPONS -> {
                 DiscountCouponVO discountCouponVO = new DiscountCouponVO();
                 BeanUtils.copyProperties(couponsDTO, discountCouponVO);
@@ -144,30 +214,6 @@ public class UserCouponServiceImpl implements UserCouponService {
         }
 
         throw new RuntimeException("未知异常");
-
     }
 
-    /**
-     * 查询数据库该用户是否拥有该优惠券
-     *
-     * @param userId   用户ID
-     * @param couponId 优惠券ID
-     * @return 是否拥有
-     */
-    @Override
-    public boolean hasUserClaimedCoupon(Integer userId, Integer couponId) {
-        return userCouponMapper.hasUserClaimedCoupon(userId, couponId);
-    }
-
-    /**
-     * 更新用户优惠券状态
-     *
-     * @param userId   用户ID
-     * @param couponId 优惠券ID
-     * @param status   优惠券状态
-     */
-    @Override
-    public Integer updateCouponStatus(Integer userId, Integer couponId, Integer status) {
-        return userCouponMapper.updateCouponStatus(userId, couponId, status);
-    }
 }

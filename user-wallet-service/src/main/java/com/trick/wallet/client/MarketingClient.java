@@ -3,11 +3,11 @@ package com.trick.wallet.client;
 import com.trick.common.config.FeignConfig;
 import com.trick.common.result.Result;
 import com.trick.wallet.model.dto.CouponDTO;
+import com.trick.wallet.model.vo.UpdateCouponForUserVO;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @FeignClient(name = "marketing-service", configuration = FeignConfig.class)
 public interface MarketingClient {
@@ -21,6 +21,14 @@ public interface MarketingClient {
     @GetMapping("/wx/marketing/coupons/{id}")
     Result<CouponDTO> getCouponById(@PathVariable("id") Integer couponId);
 
-    @PutMapping("wx/marketing/coupons/status/{id}")
-    Result<Integer> setTheCouponStatus(@PathVariable("id") Integer couponId, @RequestParam("status") Integer status);
+    /**
+     * 更新用户优惠券信息
+     *
+     * @param couponId 要更新的用户优惠券ID
+     * @param updateCouponForUserVO 要更新的数据
+     * @return 统一
+     */
+    @PostMapping("/internal/wx/marketing/coupons/{id}")
+    Result<?> updateCouponInformationForUser(@PathVariable("id") Integer couponId,
+                                             @RequestBody UpdateCouponForUserVO updateCouponForUserVO);
 }

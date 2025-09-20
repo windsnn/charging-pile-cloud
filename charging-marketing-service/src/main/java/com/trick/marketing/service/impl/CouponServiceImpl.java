@@ -5,6 +5,7 @@ import com.trick.marketing.mapper.CouponMapper;
 import com.trick.marketing.mapper.UserCouponMapper;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
+import com.trick.marketing.model.dto.UpdateCouponsDTO;
 import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.vo.CouponsVO;
 import com.trick.marketing.service.CouponService;
@@ -21,7 +22,7 @@ public class CouponServiceImpl implements CouponService {
     private UserCouponMapper userCouponMapper;
 
     /**
-     * 添加券
+     * 管理员添加券
      *
      * @param addCouponsDTO 券DTO
      */
@@ -52,6 +53,7 @@ public class CouponServiceImpl implements CouponService {
 
     /**
      * 根据优惠券ID查询优惠券全部信息
+     * 获取的是优惠券的全部信息
      *
      * @param couponId 优惠券ID
      * @return 优惠券实体
@@ -71,8 +73,13 @@ public class CouponServiceImpl implements CouponService {
         couponMapper.updateStock(couponId);
     }
 
-    //todo 管理员修改优惠券状态  and 定时任务修改过期优惠券状态
-
+    @Override
+    public void updateCoupon(Integer couponId, UpdateCouponsDTO dto) {
+        Integer i = couponMapper.updateCoupon(couponId, dto);
+        if (i == 0) {
+            throw new BusinessException("禁止更新已过期优惠券");
+        }
+    }
 
     //------------------------券类型验证---------------------------
 

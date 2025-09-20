@@ -3,9 +3,11 @@ package com.trick.marketing.mapper;
 import com.trick.common.result.Result;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
+import com.trick.marketing.model.dto.UpdateCouponsDTO;
 import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.vo.CouponsVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -20,4 +22,7 @@ public interface CouponMapper {
     Coupons getCouponById(Integer couponId);
 
     void updateStock(Integer couponId);
+
+    Integer updateCoupon(@Param("couponId") Integer couponId,
+                         @Param("dto") UpdateCouponsDTO dto);
 }

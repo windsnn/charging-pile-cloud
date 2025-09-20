@@ -16,6 +16,8 @@ public class AddCouponsDTO {
     private String name;
     private Integer type;
     private String description;
+    private Integer status;
+    private Integer isHot;
     private Integer totalQuantity;
     private Integer validityType;
     private LocalDateTime validStartTime;

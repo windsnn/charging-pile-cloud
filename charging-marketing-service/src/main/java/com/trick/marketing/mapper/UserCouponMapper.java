@@ -1,9 +1,12 @@
 package com.trick.marketing.mapper;
 
 import com.trick.marketing.model.dto.CouponsDTO;
+import com.trick.marketing.model.dto.UpdateCouponForUserDTO;
 import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.pojo.UserCoupons;
+import com.trick.marketing.model.vo.wxCouponsVO.CouponBaseVO;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 @Mapper
 public interface UserCouponMapper {
@@ -17,5 +20,11 @@ public interface UserCouponMapper {
     //根据ID获取优惠券
     CouponsDTO getCouponById(Integer userId, Integer couponId);
 
-    Integer updateCouponStatus(Integer userId, Integer couponId, Integer status);
+    //更新优惠券信息
+    void updateCouponInformationForUser(@Param("userId") Integer userId,
+                                        @Param("couponId") Integer couponId,
+                                        @Param("dto") UpdateCouponForUserDTO dto);
+
+    CouponsDTO getCoupons(@Param("userId") Integer userId,
+                            @Param("type") Integer type);
 }

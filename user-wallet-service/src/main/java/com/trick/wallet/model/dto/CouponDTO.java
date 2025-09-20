@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CouponDTO {
-    private Integer status;//用户券状态
+    private Integer status;//用户券状态(0 未使用/1已使用/2 已过期)
     private LocalDateTime claimedAt;//领取时间
     private LocalDateTime expireAt;//过期时间
     private LocalDateTime usedAt;//使用时间
