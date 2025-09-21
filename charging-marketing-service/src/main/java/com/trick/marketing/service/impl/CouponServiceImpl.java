@@ -18,8 +18,6 @@ import java.util.List;
 public class CouponServiceImpl implements CouponService {
     @Autowired
     private CouponMapper couponMapper;
-    @Autowired
-    private UserCouponMapper userCouponMapper;
 
     /**
      * 管理员添加券
@@ -129,12 +127,15 @@ public class CouponServiceImpl implements CouponService {
 
     private void verifyFixedDate(AddCouponsDTO addCouponsDTO) {
         if (addCouponsDTO.getValidStartTime() == null
-                && addCouponsDTO.getValidEndTime() == null) {
+                || addCouponsDTO.getValidEndTime() == null) {
             throw new BusinessException("有效期为空");
         }
     }
 
     private void verifyDynamicDate(AddCouponsDTO addCouponsDTO) {
+        if (addCouponsDTO.getValidStartTime() == null) {
+            throw new BusinessException("可领取时间为空");
+        }
         if (addCouponsDTO.getDaysAfterClaim() == null) {
             throw new BusinessException("有效期限为空");
         }

@@ -1,11 +1,15 @@
 package com.trick.marketing.controller.wechat;
 
+import com.trick.common.exception.BusinessException;
 import com.trick.common.result.Result;
 import com.trick.common.utils.ThreadLocalUtil;
+import com.trick.marketing.model.vo.CouponHubVO;
 import com.trick.marketing.model.vo.wxCouponsVO.CouponBaseVO;
 import com.trick.marketing.service.UserCouponService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/wx/marketing/coupons")
@@ -32,25 +36,37 @@ public class WxCouponController {
      * @param type 优惠券类型
      * @return CouponBaseVO的不同子类
      */
-    @GetMapping("/{type}")
-    public Result<CouponBaseVO> getCoupons(@PathVariable("type") Integer type) {
+    @GetMapping
+    public Result<List<CouponBaseVO>> getCoupons(@RequestParam("type") Integer type) {
         Integer userId = ThreadLocalUtil.getUserId();
-        return Result.success(userCouponService.getCoupons(userId, type));
+        return Result.success(userCouponService.getCoupons(userId, type, null));
     }
 
-    //todo 获取已经启用的优惠券列表（优惠券中心）
-
-
     /**
-     * 通过优惠券ID和用户ID，获取该优惠券的部分信息
+     * 获取用户的优惠券列表（个人页面），根据优惠券ID
      *
      * @param couponId 优惠券ID
-     * @return 部分信息
+     * @return CouponBaseVO的不同子类
      */
     @GetMapping("/{id}")
     public Result<CouponBaseVO> getCouponById(@PathVariable("id") Integer couponId) {
         Integer userId = ThreadLocalUtil.getUserId();
-        return Result.success(userCouponService.getCouponById(userId, couponId));
+
+        List<CouponBaseVO> coupons = userCouponService.getCoupons(userId, null, couponId);
+        if (coupons == null || coupons.isEmpty()) {
+            throw new BusinessException("错误的优惠券");
+        }
+        return Result.success(coupons.get(0)); //如果有，一定只有一个
+    }
+
+    /**
+     * 获取已经启用的优惠券列表（优惠券中心,前端自己分类）
+     *
+     * @return 优惠券集合
+     */
+    @GetMapping("/hub")
+    public Result<List<CouponHubVO>> getCoupons() {
+        return Result.success(userCouponService.getCouponHub());
     }
 
 }

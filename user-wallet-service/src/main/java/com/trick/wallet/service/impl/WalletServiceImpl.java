@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
 @Slf4j
@@ -91,7 +92,7 @@ public class WalletServiceImpl implements WalletService {
                         throw new BusinessException(coupon.getMsg());
                     }
 
-                    //如果存在优惠券并且可使用，进行折扣计算
+                    //如果存在优惠券并且可使用(status通过数据库userAt计算)，进行折扣计算
                     if (coupon.getData() != null && coupon.getData().getStatus() == 0) {
                         switch (coupon.getData().getType()) {
                             case DISCOUNT_COUPONS -> amountTemp = RechargeDiscounts(amount, coupon.getData());
@@ -101,11 +102,14 @@ public class WalletServiceImpl implements WalletService {
                         throw new BusinessException("优惠券无效");
                     }
 
-                    //todo 调用真实支付机制，使用折扣逻辑后的amountTemp进行支付
+                    //todo 5 调用真实支付机制，使用折扣逻辑后的amountTemp进行支付
 
+                    //钱包充值
+                    walletMapper.updateBalance(userId, amount);
 
-                    //5 添加充值记录
+                    //设置交易成功描述,添加充值记录
                     logT.setStatus(1);//成功
+                    logT.setDescription("模拟充值，成功使用优惠券，优惠券ID为：" + couponId);
                     transactionLogService.addLogTransactions(userId, logT);
 
                     //6 更新优惠券信息，记录优惠券的使用时间等（设置该优惠券为已使用）
@@ -117,17 +121,10 @@ public class WalletServiceImpl implements WalletService {
                         throw new BusinessException(result.getMsg());
                     }
 
-                    //设置交易成功描述
-                    logT.setDescription("模拟充值，成功使用优惠券，优惠券ID为：" + couponId);
-
                 } finally {
                     lock.unlock();
                 }
             }
-
-            //钱包充值
-            walletMapper.updateBalance(userId, amount);
-
         } catch (Exception e) {
             logT.setStatus(2);//失败
             logT.setDescription("模拟充值失败");
@@ -175,19 +172,21 @@ public class WalletServiceImpl implements WalletService {
         }
 
         if (couponDTO.getDiscountPercent() != null) {
-            // 计算折扣后的金额
-            BigDecimal discount = amount.multiply(couponDTO.getDiscountPercent());
+            BigDecimal payableAmount = amount
+                    .multiply(couponDTO.getDiscountPercent()) //乘以折扣，如85折
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP); //除以100，四舍五入
 
-            // 如果有最高折扣金额限制
-            if (couponDTO.getMaxDiscountAmount() != null && discount.compareTo(couponDTO.getMaxDiscountAmount()) > 0) {
-                discount = couponDTO.getMaxDiscountAmount();
+            if (couponDTO.getMaxDiscountAmount() != null) {
+                BigDecimal discountAmount = amount.subtract(payableAmount); //折扣金额
+                if (discountAmount.compareTo(couponDTO.getMaxDiscountAmount()) > 0) {
+                    //使用最大折扣金额进行优惠
+                    payableAmount = amount.subtract(couponDTO.getMaxDiscountAmount());
+                }
             }
 
-            BigDecimal newAmount = amount.subtract(discount);
-            return newAmount.compareTo(BigDecimal.ZERO) > 0 ? newAmount : BigDecimal.ZERO;
+            return payableAmount.max(BigDecimal.ZERO);
         }
 
         return amount;
     }
-
 }

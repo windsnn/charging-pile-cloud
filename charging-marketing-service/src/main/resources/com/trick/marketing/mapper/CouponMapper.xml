@@ -8,10 +8,10 @@
     <insert id="addCoupon">
         insert into coupons(code, name, type, description, total_quantity, validity_type, valid_start_time,
                             valid_end_time, days_after_claim, discount_percent,
-                            min_spend, max_discount_amount, discount_amount, status, is_hot)
+                            min_spend, max_discount_amount, discount_amount)
         values (#{code}, #{name}, #{type}, #{description}, #{totalQuantity}, #{validityType}, #{validStartTime},
                 #{validEndTime}, #{daysAfterClaim}, #{discountPercent}, #{minSpend}, #{maxDiscountAmount},
-                #{discountAmount}, #{status}, #{isHot})
+                #{discountAmount})
     </insert>
 
     <update id="updateStock">

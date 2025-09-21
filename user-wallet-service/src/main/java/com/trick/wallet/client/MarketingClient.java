@@ -16,7 +16,7 @@ public interface MarketingClient {
      * 获取优惠券信息，顺便判断是否拥有优惠券
      *
      * @param couponId 优惠券ID
-     * @return 优惠券数据
+     * @return 优惠券数据（CouponBase转为Coupon）
      */
     @GetMapping("/wx/marketing/coupons/{id}")
     Result<CouponDTO> getCouponById(@PathVariable("id") Integer couponId);
@@ -24,7 +24,7 @@ public interface MarketingClient {
     /**
      * 更新用户优惠券信息
      *
-     * @param couponId 要更新的用户优惠券ID
+     * @param couponId              要更新的用户优惠券ID
      * @param updateCouponForUserVO 要更新的数据
      * @return 统一
      */

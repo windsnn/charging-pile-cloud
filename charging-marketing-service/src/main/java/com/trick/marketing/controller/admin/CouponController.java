@@ -30,7 +30,7 @@ public class CouponController {
     }
 
     /**
-     * 条件查询券
+     * 条件查询券 无条件则查询所有券
      *
      * @param dto QueryCouponsDTO
      * @return 统一返回 Result 泛型 List CouponsVO
@@ -53,5 +53,4 @@ public class CouponController {
         return Result.success();
     }
 
-    //todo 分页获取所有的优惠券列表
 }

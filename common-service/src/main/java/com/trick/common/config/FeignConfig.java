@@ -50,12 +50,4 @@ public class FeignConfig {
         return Logger.Level.NONE;
     }
 
-    @Bean
-    public Decoder feignDecoder(ObjectMapper objectMapper) {
-        return new ResponseEntityDecoder(new SpringDecoder(() -> new HttpMessageConverters(
-                new MappingJackson2HttpMessageConverter(objectMapper)
-        )));
-    }
-
-
 }

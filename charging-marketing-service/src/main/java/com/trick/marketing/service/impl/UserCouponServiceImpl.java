@@ -7,6 +7,7 @@ import com.trick.marketing.model.dto.CouponsDTO;
 import com.trick.marketing.model.dto.UpdateCouponForUserDTO;
 import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.pojo.UserCoupons;
+import com.trick.marketing.model.vo.CouponHubVO;
 import com.trick.marketing.model.vo.wxCouponsVO.CouponBaseVO;
 import com.trick.marketing.model.vo.wxCouponsVO.DiscountCouponVO;
 import com.trick.marketing.model.vo.wxCouponsVO.VouchersVO;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -130,36 +132,36 @@ public class UserCouponServiceImpl implements UserCouponService {
     }
 
     /**
-     * 根据优惠券类型的不同，返回不同的VO
+     * 根据优惠券类型返回不同的VO
      * 获取的是用户已有的优惠券信息
      *
      * @param userId   用户ID
+     * @param type     优惠券类型
      * @param couponId 优惠券ID
-     * @return 优惠券信息
+     * @return 优惠券集合
      */
     @Override
-    public CouponBaseVO getCouponById(Integer userId, Integer couponId) {
-        CouponsDTO couponsDTO = userCouponMapper.getCouponById(userId, couponId);
-
-        if (couponsDTO == null) {
-            throw new BusinessException("该用户不拥有该优惠券");
+    public List<CouponBaseVO> getCoupons(Integer userId, Integer type, Integer couponId) {
+        if (userId == null || (type == null && couponId == null)) {
+            throw new RuntimeException("参数错误");
         }
 
-        //调用方法获取VO
-        return getCouponBaseVO(couponsDTO.getType(), couponsDTO);
+        List<CouponsDTO> couponsDTO = userCouponMapper.getCoupons(userId, type, couponId);
+
+        //根据优惠券类型不同，调用方法获取不同VO
+        return couponsDTO.stream()
+                .map(dto -> getCouponBaseVO(dto.getType(), dto))
+                .toList();
     }
 
     /**
-     * 根据优惠券类型返回不同的VO
+     * 获取优惠券中心的券
      *
-     * @param type 优惠券类型
-     * @return CouponBaseVO
+     * @return 券
      */
     @Override
-    public CouponBaseVO getCoupons(Integer userId, Integer type) {
-        CouponsDTO couponsDTO = userCouponMapper.getCoupons(userId, type);
-        //调用方法获取VO
-        return getCouponBaseVO(type, couponsDTO);
+    public List<CouponHubVO> getCouponHub() {
+        return userCouponMapper.getCouponHub();
     }
 
     /**
@@ -211,9 +213,8 @@ public class UserCouponServiceImpl implements UserCouponService {
                 BeanUtils.copyProperties(couponsDTO, vouchersVO);
                 return vouchersVO;
             }
+            default -> throw new BusinessException("不存在的优惠券类型");
         }
-
-        throw new RuntimeException("未知异常");
     }
 
 }
