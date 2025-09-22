@@ -25,4 +25,6 @@ public interface CouponMapper {
 
     Integer updateCoupon(@Param("couponId") Integer couponId,
                          @Param("dto") UpdateCouponsDTO dto);
+
+    void updateExpiredCoupon();
 }

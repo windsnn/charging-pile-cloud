@@ -122,7 +122,9 @@ public class WalletServiceImpl implements WalletService {
                     }
 
                 } finally {
-                    lock.unlock();
+                    if (lock.isHeldByCurrentThread()) {
+                        lock.unlock();
+                    }
                 }
             }
         } catch (Exception e) {

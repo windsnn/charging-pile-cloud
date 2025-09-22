@@ -1,6 +1,7 @@
 package com.trick.marketing.service.impl;
 
 import com.trick.common.exception.BusinessException;
+import com.trick.marketing.enums.CouponStatus;
 import com.trick.marketing.mapper.CouponMapper;
 import com.trick.marketing.mapper.UserCouponMapper;
 import com.trick.marketing.model.dto.CouponsDTO;
@@ -29,8 +30,6 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserCouponServiceImpl implements UserCouponService {
-    private static final int ENABLED = 1; //已启用
-
     private static final int FIXED_DATE = 1; //固定过期时间类型
     private static final int DYNAMIC_DATES = 2; //动态过期时间类型
 
@@ -45,10 +44,6 @@ public class UserCouponServiceImpl implements UserCouponService {
     private CouponService couponService;
     @Autowired
     private StringRedisTemplate stringRedisTemplate;
-    @Autowired
-    private CouponMapper couponMapper;
-
-    //todo 定时任务设置优惠券为过期
 
     /**
      * 用户添加优惠券到账户
@@ -91,7 +86,7 @@ public class UserCouponServiceImpl implements UserCouponService {
                 LocalDateTime startTime = coupons.getValidStartTime();
                 LocalDateTime endTime = coupons.getValidEndTime();
 
-                if (!Objects.equals(coupons.getStatus(), ENABLED)) {
+                if (!Objects.equals(CouponStatus.of(coupons.getStatus()), CouponStatus.ENABLED)) {
                     throw new BusinessException("该优惠券已不可领取");
                 }
 
@@ -149,9 +144,7 @@ public class UserCouponServiceImpl implements UserCouponService {
         List<CouponsDTO> couponsDTO = userCouponMapper.getCoupons(userId, type, couponId);
 
         //根据优惠券类型不同，调用方法获取不同VO
-        return couponsDTO.stream()
-                .map(dto -> getCouponBaseVO(dto.getType(), dto))
-                .toList();
+        return couponsDTO.stream().map(dto -> getCouponBaseVO(dto.getType(), dto)).toList();
     }
 
     /**

@@ -1,6 +1,7 @@
 package com.trick.marketing.service.impl;
 
 import com.trick.common.exception.BusinessException;
+import com.trick.marketing.enums.CouponStatus;
 import com.trick.marketing.mapper.CouponMapper;
 import com.trick.marketing.mapper.UserCouponMapper;
 import com.trick.marketing.model.dto.AddCouponsDTO;
@@ -16,6 +17,12 @@ import java.util.List;
 
 @Service
 public class CouponServiceImpl implements CouponService {
+    private static final int DISCOUNT_COUPON = 1; //折扣券
+    private static final int VOUCHER = 2; //代金券
+
+    private static final int FIXED_DATE = 1; //固定日期
+    private static final int DYNAMIC_DATE = 2; //动态日期
+
     @Autowired
     private CouponMapper couponMapper;
 
@@ -28,8 +35,8 @@ public class CouponServiceImpl implements CouponService {
     public void addCoupon(AddCouponsDTO addCouponsDTO) {
         //1 验证数据
         switch (addCouponsDTO.getType()) {
-            case 1 -> verifyDiscountCoupon(addCouponsDTO);
-            case 2 -> verifyVoucher(addCouponsDTO);
+            case DISCOUNT_COUPON -> verifyDiscountCoupon(addCouponsDTO);
+            case VOUCHER -> verifyVoucher(addCouponsDTO);
             default -> throw new BusinessException("不存在的券类型");
         }
 
@@ -71,10 +78,20 @@ public class CouponServiceImpl implements CouponService {
         couponMapper.updateStock(couponId);
     }
 
+    /**
+     * 更新优惠券状态
+     *
+     * @param couponId 优惠券ID
+     * @param dto      要更改的状态等数据
+     */
     @Override
     public void updateCoupon(Integer couponId, UpdateCouponsDTO dto) {
-        Integer i = couponMapper.updateCoupon(couponId, dto);
-        if (i == 0) {
+        //验证状态合法性
+        CouponStatus.of(dto.getStatus());
+
+        //执行更新
+        Integer updated = couponMapper.updateCoupon(couponId, dto);
+        if (updated == 0) {
             throw new BusinessException("禁止更新已过期优惠券");
         }
     }
@@ -119,8 +136,8 @@ public class CouponServiceImpl implements CouponService {
      */
     private void verifyValidation(AddCouponsDTO addCouponsDTO) {
         switch (addCouponsDTO.getValidityType()) {
-            case 1 -> verifyFixedDate(addCouponsDTO);
-            case 2 -> verifyDynamicDate(addCouponsDTO);
+            case FIXED_DATE -> verifyFixedDate(addCouponsDTO);
+            case DYNAMIC_DATE -> verifyDynamicDate(addCouponsDTO);
             default -> throw new BusinessException("不存在的有效期类型");
         }
     }

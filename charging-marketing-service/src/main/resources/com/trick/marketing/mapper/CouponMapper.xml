@@ -20,12 +20,20 @@
         where id = #{couponId}
           and total_quantity > claimed_quantity
     </update>
+
     <update id="updateCoupon">
         update coupons
         set status = #{dto.status},
             is_hot = #{dto.isHot}
         where id = #{couponId}
           and status != 2
+    </update>
+
+    <update id="updateExpiredCoupon">
+        UPDATE coupons
+        SET status = 2
+        WHERE status IN (0, 1)
+          AND NOW() > valid_end_time
     </update>
 
     <select id="getCoupons" resultType="com.trick.marketing.model.vo.CouponsVO">
