@@ -33,6 +33,7 @@
         <module>charging-gateway-service</module>
         <module>admin-service</module>
         <module>charging-marketing-service</module>
+        <module>logs-service</module>
     </modules>
 
     <!-- 关键点3: 使用 properties 统一管理版本号 -->

@@ -16,6 +16,9 @@ public class CouponTask {
     @Autowired
     private RedissonClient redisson;
 
+    /**
+     * 定时任务，更新已过期的优惠券状态
+     */
     @Scheduled(cron = "0 0 0 * * *")
     public void updateExpiredCouponsStatus() {
         RLock lock = redisson.getLock("CouponTask");

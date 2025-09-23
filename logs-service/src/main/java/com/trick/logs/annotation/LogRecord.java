@@ -1,4 +1,4 @@
-package com.trick.common.annotation;
+package com.trick.logs.annotation;
 
 import java.lang.annotation.*;
 

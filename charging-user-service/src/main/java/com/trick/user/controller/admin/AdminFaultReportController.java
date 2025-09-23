@@ -1,6 +1,6 @@
 package com.trick.user.controller.admin;
 
-import com.trick.common.annotation.LogRecord;
+import com.trick.logs.annotation.LogRecord;
 import com.trick.common.result.PageResult;
 import com.trick.common.result.Result;
 import com.trick.user.model.dto.FaultReportQueryDTO;

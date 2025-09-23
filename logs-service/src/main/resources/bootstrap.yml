@@ -1,6 +1,6 @@
 spring:
   application:
-    name: pile-service
+    name: logs-service
   cloud:
     nacos:
       server-addr: 192.168.1.90:8848
@@ -8,5 +8,4 @@ spring:
         file-extension: yaml
         shared-configs:
           - data-id: shared-configs.yaml
-          - data-id: order-tx.yaml
           - data-id: mq.yaml

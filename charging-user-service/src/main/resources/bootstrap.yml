@@ -10,3 +10,4 @@ spring:
           - data-id: shared-configs.yaml
           - data-id: jwt-secret.yaml
           - data-id: order-tx.yaml
+          - data-id: mq.yaml

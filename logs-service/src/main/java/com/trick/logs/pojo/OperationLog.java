@@ -1,4 +1,4 @@
-package com.trick.common.pojo;
+package com.trick.logs.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

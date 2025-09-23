@@ -1,7 +1,7 @@
 package com.trick.pile.controller.admin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.trick.common.annotation.LogRecord;
+import com.trick.logs.annotation.LogRecord;
 import com.trick.common.result.PageResult;
 import com.trick.common.result.Result;
 import com.trick.pile.model.dto.ChargingPileAddAndUpdateDTO;

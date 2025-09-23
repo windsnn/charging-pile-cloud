@@ -1,12 +1,11 @@
-package com.trick.common.aop;
-
+package com.trick.logs.aop;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.trick.common.annotation.LogRecord;
-import com.trick.common.service.OperationLogService;
+import com.trick.logs.annotation.LogRecord;
+import com.trick.logs.service.producer.OperationLogProducer;
 import com.trick.common.utils.ThreadLocalUtil;
-import com.trick.common.pojo.OperationLog;
+import com.trick.logs.pojo.OperationLog;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -41,10 +40,10 @@ public class LogRecordAspect {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private OperationLogService operationLogService;
+    private OperationLogProducer operationLogProducer;
 
     // 定义切点，拦截所有带 @LogRecord 注解的方法
-    @Pointcut("@annotation(com.trick.common.annotation.LogRecord)")
+    @Pointcut("@annotation(com.trick.logs.annotation.LogRecord)")
     public void logRecordPointcut() {
     }
 
@@ -110,7 +109,9 @@ public class LogRecordAspect {
         // 6. 设置执行状态和耗时
         long executionTime = System.currentTimeMillis() - startTime;
         opLog.setExecutionTime((int) executionTime);
-        opLog.setCreateTime(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        opLog.setCreateTime(now);
+        opLog.setUpdateTime(now);
 
         if (e != null) {
             opLog.setStatus(1); // 1-失败
@@ -119,8 +120,8 @@ public class LogRecordAspect {
             opLog.setStatus(0); // 0-成功
         }
 
-        // 7. 异步保存日志
-        operationLogService.addOperationLog(opLog);
+        // 7. MQ异步保存日志
+        operationLogProducer.sendOperationLog(opLog);
     }
 
     /**
