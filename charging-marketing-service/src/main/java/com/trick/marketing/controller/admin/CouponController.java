@@ -1,6 +1,7 @@
 package com.trick.marketing.controller.admin;
 
 import com.trick.common.result.Result;
+import com.trick.logs.annotation.LogRecord;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
 import com.trick.marketing.model.dto.UpdateCouponsDTO;
@@ -23,6 +24,11 @@ public class CouponController {
      * @param addCouponsDTO 添加优惠券DTO
      * @return 统一返回结果result
      */
+    @LogRecord(
+            module = "优惠券管理",
+            type = "新增优惠券",
+            description = "'添加了一个优惠券，编号code为：'+ #addCouponsDTO.code"
+    )
     @PostMapping
     public Result<?> addCoupon(@RequestBody AddCouponsDTO addCouponsDTO) {
         couponService.addCoupon(addCouponsDTO);
@@ -47,6 +53,11 @@ public class CouponController {
      * @param dto      更新数据
      * @return 统一
      */
+    @LogRecord(
+            module = "优惠券管理",
+            type = "更新优惠券状态",
+            description = "'更新了一个优惠券状态，ID为：'+ #couponId"
+    )
     @PostMapping("/{id}")
     public Result<?> updateCoupon(@PathVariable("id") Integer couponId, @RequestBody UpdateCouponsDTO dto) {
         couponService.updateCoupon(couponId, dto);

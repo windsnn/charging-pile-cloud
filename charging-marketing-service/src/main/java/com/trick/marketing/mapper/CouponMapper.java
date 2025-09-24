@@ -1,6 +1,5 @@
 package com.trick.marketing.mapper;
 
-import com.trick.common.result.Result;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
 import com.trick.marketing.model.dto.UpdateCouponsDTO;
@@ -21,7 +20,7 @@ public interface CouponMapper {
 
     Coupons getCouponById(Integer couponId);
 
-    void updateStock(Integer couponId);
+    int updateStock(Integer couponId);
 
     Integer updateCoupon(@Param("couponId") Integer couponId,
                          @Param("dto") UpdateCouponsDTO dto);

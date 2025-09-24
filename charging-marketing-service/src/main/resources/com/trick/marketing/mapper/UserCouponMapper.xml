@@ -10,9 +10,12 @@
     </insert>
 
     <update id="updateCouponInformationForUser">
-        UPDATE user_coupons
+        UPDATE user_coupons uc
+            JOIN coupons c
+            ON uc.coupon_id = c.id
         SET used_at        = #{dto.usedAt},
-            transaction_id = #{dto.transactionId}
+            transaction_id = #{dto.transactionId},
+            used_quantity  = used_quantity + 1
         WHERE user_id = #{userId}
           AND coupon_id = #{couponId}
     </update>

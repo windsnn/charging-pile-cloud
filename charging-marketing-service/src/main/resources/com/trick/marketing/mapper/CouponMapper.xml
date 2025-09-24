@@ -18,7 +18,7 @@
         update coupons
         set claimed_quantity = claimed_quantity + 1
         where id = #{couponId}
-          and total_quantity > claimed_quantity
+          and (total_quantity is null or total_quantity > claimed_quantity)
     </update>
 
     <update id="updateCoupon">

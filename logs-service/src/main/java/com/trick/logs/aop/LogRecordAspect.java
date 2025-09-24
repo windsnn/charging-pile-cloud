@@ -3,7 +3,7 @@ package com.trick.logs.aop;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trick.logs.annotation.LogRecord;
-import com.trick.logs.service.producer.OperationLogProducer;
+import com.trick.logs.service.OperationLogServiceImpl;
 import com.trick.common.utils.ThreadLocalUtil;
 import com.trick.logs.pojo.OperationLog;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,7 +40,7 @@ public class LogRecordAspect {
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
-    private OperationLogProducer operationLogProducer;
+    private OperationLogServiceImpl operationLogServiceImpl;
 
     // 定义切点，拦截所有带 @LogRecord 注解的方法
     @Pointcut("@annotation(com.trick.logs.annotation.LogRecord)")
@@ -121,7 +121,7 @@ public class LogRecordAspect {
         }
 
         // 7. MQ异步保存日志
-        operationLogProducer.sendOperationLog(opLog);
+        operationLogServiceImpl.sendOperationLog(opLog);
     }
 
     /**

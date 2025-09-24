@@ -1,4 +1,4 @@
-package com.trick.logs.service.consumer;
+package com.trick.logs.consumer;
 
 import com.trick.logs.mapper.OperationLogMapper;
 import com.trick.logs.pojo.OperationLog;

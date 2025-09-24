@@ -1,4 +1,4 @@
-package com.trick.marketing.ScheduledTasks;
+package com.trick.marketing.scheduled_tasks;
 
 import com.trick.marketing.mapper.CouponMapper;
 import org.redisson.api.RLock;

@@ -1,13 +1,13 @@
-package com.trick.logs.service.producer;
+package com.trick.logs.service;
 
 import com.trick.logs.pojo.OperationLog;
 import org.springframework.amqp.AmqpException;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
-public class OperationLogProducer {
+@Service
+public class OperationLogServiceImpl {
     @Autowired
     private RabbitTemplate rabbitTemplate;
 

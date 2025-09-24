@@ -3,7 +3,6 @@ package com.trick.marketing.service.impl;
 import com.trick.common.exception.BusinessException;
 import com.trick.marketing.enums.CouponStatus;
 import com.trick.marketing.mapper.CouponMapper;
-import com.trick.marketing.mapper.UserCouponMapper;
 import com.trick.marketing.model.dto.AddCouponsDTO;
 import com.trick.marketing.model.dto.QueryCouponsDTO;
 import com.trick.marketing.model.dto.UpdateCouponsDTO;
@@ -11,20 +10,20 @@ import com.trick.marketing.model.pojo.Coupons;
 import com.trick.marketing.model.vo.CouponsVO;
 import com.trick.marketing.service.CouponService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.trick.marketing.constants.CouponConstants.*;
+
 @Service
 public class CouponServiceImpl implements CouponService {
-    private static final int DISCOUNT_COUPON = 1; //折扣券
-    private static final int VOUCHER = 2; //代金券
-
-    private static final int FIXED_DATE = 1; //固定日期
-    private static final int DYNAMIC_DATE = 2; //动态日期
 
     @Autowired
     private CouponMapper couponMapper;
+    @Autowired
+    private StringRedisTemplate stringRedisTemplate;
 
     /**
      * 管理员添加券
@@ -39,6 +38,14 @@ public class CouponServiceImpl implements CouponService {
             case VOUCHER -> verifyVoucher(addCouponsDTO);
             default -> throw new BusinessException("不存在的券类型");
         }
+
+        //2 将优惠券code，库存存入Redis
+        String code = addCouponsDTO.getCode();
+        Integer totalQuantity = addCouponsDTO.getTotalQuantity();
+
+        //创建库存redis
+        stringRedisTemplate.opsForValue()
+                .setIfAbsent(COUPON_STOCK_KEY + code, String.valueOf(totalQuantity));
 
         //2 调用数据库添加券
         couponMapper.addCoupon(addCouponsDTO);
@@ -75,7 +82,9 @@ public class CouponServiceImpl implements CouponService {
      */
     @Override
     public void updateStock(Integer couponId) {
-        couponMapper.updateStock(couponId);
+        if (couponMapper.updateStock(couponId) == 0) {
+            throw new BusinessException("该优惠券已被领取完");
+        }
     }
 
     /**
