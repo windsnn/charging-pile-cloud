@@ -1,7 +1,6 @@
 package com.trick.pile.fallback;
 
 import com.trick.common.exception.BusinessException;
-import com.trick.common.result.Result;
 import com.trick.pile.client.AsyncOrderClient;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.openfeign.FallbackFactory;

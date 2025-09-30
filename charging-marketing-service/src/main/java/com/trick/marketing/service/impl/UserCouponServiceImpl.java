@@ -118,8 +118,6 @@ public class UserCouponServiceImpl implements UserCouponService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addCouponToUser(Integer userId, Integer couponId) {//事务生效问题（事务未提交，锁先释放）
-        //todo 更改为热点数据redis秒杀+MQ消息队列
-
         //使用Redisson分布式锁保证多实例下的一人一票
         RLock lock = redissonClient.getLock("couponLock:" + userId);
 
