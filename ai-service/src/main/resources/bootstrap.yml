@@ -9,3 +9,4 @@ spring:
         file-extension: yaml
         shared-configs:
           - data-id: ai.yaml
+          - data-id: shared-configs.yaml
