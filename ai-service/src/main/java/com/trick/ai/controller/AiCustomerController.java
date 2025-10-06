@@ -1,7 +1,6 @@
 package com.trick.ai.controller;
 
 import com.trick.ai.tools.BingCrawlerTools;
-import com.trick.ai.vector.SharedVectorStore;
 import com.trick.common.utils.ThreadLocalUtil;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.ai.chat.client.advisor.MessageChatMemoryAdvisor;
@@ -9,6 +8,7 @@ import org.springframework.ai.chat.client.advisor.vectorstore.QuestionAnswerAdvi
 import org.springframework.ai.chat.memory.ChatMemory;
 import org.springframework.ai.chat.messages.Message;
 import org.springframework.ai.chat.prompt.PromptTemplate;
+import org.springframework.ai.vectorstore.SimpleVectorStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
@@ -31,13 +31,15 @@ public class AiCustomerController {
     private PromptTemplate promptTemplate;
 
     @Autowired
+    @Qualifier("sharedVectorStore")
+    private SimpleVectorStore sharedVectorStore;
+
+    @Autowired
     private ChatMemory chatMemory;
 
     @Autowired
     private BingCrawlerTools bingCrawlerTools;
 
-    @Autowired
-    private SharedVectorStore sharedVectorStore;
 
     /**
      * 与ai客服聊天
@@ -52,7 +54,7 @@ public class AiCustomerController {
                 .advisors(MessageChatMemoryAdvisor.builder(chatMemory)
                         .conversationId(ThreadLocalUtil.getUserId() + ":" + chatId)
                         .build())
-                .advisors(QuestionAnswerAdvisor.builder(sharedVectorStore.getVectorStore())
+                .advisors(QuestionAnswerAdvisor.builder(sharedVectorStore)
                         .promptTemplate(promptTemplate)
                         .build())
                 .tools(bingCrawlerTools)
